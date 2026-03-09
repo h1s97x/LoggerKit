@@ -1,0 +1,33 @@
+# Development files
+.dart_tool/
+.packages
+.pub/
+build/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Test files
+test/
+*_test.dart
+
+# Documentation
+doc/
+CONTRIBUTING.md
+COMMIT_PLAN.md
+
+# CI/CD
+.github/
+
+# Build artifacts
+*.log
+*.tmp
+
+# Example app
+example/
+
+# Benchmark
+benchmark/
