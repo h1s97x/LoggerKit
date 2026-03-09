@@ -1,0 +1,22 @@
+#!/bin/bash
+# Git prepare-commit-msg hook
+# 自动在提交信息中添加分支信息
+
+commit_msg_file=$1
+commit_source=$2
+
+# 只在普通提交时添加分支信息（不包括 merge、squash 等）
+if [ -z "$commit_source" ]; then
+    branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
+    
+    # 如果分支名包含 issue 编号（如 feature/123-add-feature）
+    if echo "$branch_name" | grep -qE '^(feature|fix|hotfix)/[0-9]+'; then
+        issue_number=$(echo "$branch_name" | grep -oE '[0-9]+' | head -1)
+        
+        # 检查提交信息中是否已经包含 issue 引用
+        if ! grep -qE "(Closes|Fixes|Refs) #$issue_number" "$commit_msg_file"; then
+            echo "" >> "$commit_msg_file"
+            echo "Refs #$issue_number" >> "$commit_msg_file"
+        fi
+    fi
+fi
