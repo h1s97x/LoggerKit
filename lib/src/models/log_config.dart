@@ -1,7 +1,13 @@
 import 'log_level.dart';
 
-/// 日志配置
+/// Configuration for logging.
+///
+/// [LogConfig] contains all configuration options for the logging system including
+/// which writers to enable, formatting options, and file rotation settings.
 class LogConfig {
+  /// Create a new [LogConfig].
+  ///
+  /// All parameters have sensible defaults and are optional.
   const LogConfig({
     this.minLevel = LogLevel.debug,
     this.enableConsole = true,
@@ -17,43 +23,48 @@ class LogConfig {
     this.prettyPrint = true,
   });
 
-  /// 最小日志级别
+  /// Minimum log level to record
   final LogLevel minLevel;
 
-  /// 是否启用控制台输出
+  /// Enable console output
   final bool enableConsole;
 
-  /// 是否启用文件日志
+  /// Enable file logging
   final bool enableFile;
 
-  /// 是否启用远程日志
+  /// Enable remote logging
   final bool enableRemote;
 
-  /// 文件日志路径
+  /// Path for log files
   final String? filePath;
 
-  /// 远程日志URL
+  /// URL for remote logging
   final String? remoteUrl;
 
-  /// 最大文件大小（字节）
+  /// Maximum size of a log file in bytes
   final int maxFileSize;
 
-  /// 最大文件数量
+  /// Maximum number of log files to keep
   final int maxFileCount;
 
-  /// 是否包含时间戳
+  /// Include timestamp in logs
   final bool includeTimestamp;
 
-  /// 是否包含标签
+  /// Include tag in logs
   final bool includeTag;
 
-  /// 是否包含emoji
+  /// Include emoji in logs
   final bool includeEmoji;
 
-  /// 是否美化输出
+  /// Pretty print log output
   final bool prettyPrint;
 
-  /// 复制并修改配置
+  /// Create a copy of this config with some fields replaced.
+  ///
+  /// Example:
+  /// ```dart
+  /// final newConfig = config.copyWith(minLevel: LogLevel.warning);
+  /// ```
   LogConfig copyWith({
     LogLevel? minLevel,
     bool? enableConsole,

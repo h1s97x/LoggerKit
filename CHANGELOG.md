@@ -9,6 +9,21 @@
 
 ## English
 
+### [1.0.2] - 2026-03-16
+
+#### Added
+- Comprehensive dartdoc comments for all public APIs
+- Detailed documentation for all classes, methods, and parameters
+- Usage examples in dartdoc comments
+- Better IDE support with improved documentation
+
+#### Improved
+- Enhanced code documentation for better developer experience
+- Added parameter descriptions for all public methods
+- Included return value documentation
+
+---
+
 ### [1.0.1] - 2026-03-16
 
 #### Added
@@ -72,6 +87,21 @@
 ---
 
 ## 中文
+
+### [1.0.2] - 2026-03-16
+
+#### 新增
+- 为所有公开API添加完整的dartdoc注释
+- 为所有类、方法和参数添加详细文档
+- 在dartdoc注释中包含使用示例
+- 改进IDE支持，提供更好的文档
+
+#### 改进
+- 增强代码文档，改善开发者体验
+- 为所有公开方法添加参数描述
+- 包含返回值文档
+
+---
 
 ### [1.0.1] - 2026-03-16
 

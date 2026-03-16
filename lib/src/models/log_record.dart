@@ -1,7 +1,20 @@
 import 'log_level.dart';
 
-/// 日志记录
+/// A single log record.
+///
+/// [LogRecord] contains all information about a single log entry including
+/// the message, level, timestamp, and optional error/stack trace information.
 class LogRecord {
+  /// Create a new [LogRecord].
+  ///
+  /// Parameters:
+  /// - [level]: The [LogLevel] of this record
+  /// - [message]: The log message
+  /// - [timestamp]: The timestamp (defaults to current time)
+  /// - [tag]: Optional tag to categorize the log
+  /// - [error]: Optional error object
+  /// - [stackTrace]: Optional stack trace
+  /// - [data]: Optional additional data
   LogRecord({
     required this.level,
     required this.message,
@@ -12,7 +25,9 @@ class LogRecord {
     this.data,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  /// 从JSON创建
+  /// Create a [LogRecord] from JSON.
+  ///
+  /// Useful for deserializing log records from remote sources or storage.
   factory LogRecord.fromJson(Map<String, dynamic> json) {
     return LogRecord(
       level: LogLevel.values.firstWhere(
@@ -26,28 +41,30 @@ class LogRecord {
     );
   }
 
-  /// 日志级别
+  /// The log level
   final LogLevel level;
 
-  /// 日志消息
+  /// The log message
   final String message;
 
-  /// 时间戳
+  /// The timestamp when this record was created
   final DateTime timestamp;
 
-  /// 日志标签
+  /// Optional tag to categorize the log
   final String? tag;
 
-  /// 错误对象
+  /// Optional error object
   final Object? error;
 
-  /// 堆栈跟踪
+  /// Optional stack trace
   final StackTrace? stackTrace;
 
-  /// 额外数据
+  /// Optional additional data
   final Map<String, dynamic>? data;
 
-  /// 转换为JSON
+  /// Convert this [LogRecord] to JSON.
+  ///
+  /// Useful for serializing log records for remote storage or transmission.
   Map<String, dynamic> toJson() {
     return {
       'level': level.name,
