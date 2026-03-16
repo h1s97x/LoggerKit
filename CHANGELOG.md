@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -23,7 +23,7 @@ All notable changes to this project will be documented in this file.
 - LogWriter - 日志写入器接口
 - LogFilter - 日志过滤器接口
 - Logger - 日志记录器类
-- LogKit - 全局日志管理器
+- LoggerKit - 全局日志管理器
 
 ### Documentation
 - README.md - 完整使用文档

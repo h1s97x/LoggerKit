@@ -1,6 +1,6 @@
-# LogKit 提交方案
+﻿# LoggerKit 提交方案
 
-本文档描述 LogKit 项目的 Git 提交计划，遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。
+本文档描述 LoggerKit 项目的 Git 提交计划，遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。
 
 ## 提交规范
 
@@ -30,7 +30,7 @@
 
 ### 范围 (Scope)
 
-- `core`: 核心功能（Logger, LogKit）
+- `core`: 核心功能（Logger, LoggerKit）
 - `models`: 数据模型（LogLevel, LogRecord, LogConfig）
 - `formatters`: 格式化器
 - `writers`: 写入器
@@ -132,10 +132,10 @@ feat(filters): implement log filters
 
 #### Commit 6: 实现核心日志功能
 ```
-feat(core): implement Logger and LogKit classes
+feat(core): implement Logger and LoggerKit classes
 
 - Add Logger class with formatter, writer, and filter support
-- Add LogKit global manager with static methods
+- Add LoggerKit global manager with static methods
 - Support d(), i(), w(), e(), f() log methods
 - Support event tracking
 - Support custom tags and data
@@ -210,7 +210,7 @@ test: add comprehensive unit tests
 - Add LogFilter tests (6 tests)
 - Add LogRecord tests (6 tests)
 - Add LogFormatter tests (4 tests)
-- Add LogKit tests (6 tests)
+- Add LoggerKit tests (6 tests)
 - Total: 29 tests with 100% pass rate
 ```
 
@@ -302,6 +302,63 @@ chore: add project metadata and configuration
 - `COMMIT_PLAN.md`
 - `pubspec.yaml` (更新)
 
+#### Commit 16: 项目重命名 log_kit → logger_kit
+```
+refactor: rename project from log_kit to logger_kit
+
+- Rename package from log_kit to logger_kit
+- Rename class from LogKit to LoggerKit
+- Update all file names to use logger_kit
+- Update all imports and references
+- Update documentation with new package name
+- Update GitHub URL to https://github.com/h1s97x/LoggerKit
+- Update pub.dev package references
+
+Files renamed:
+- lib/log_kit.dart → lib/logger_kit.dart
+- lib/src/core/log_kit.dart → lib/src/core/logger_kit.dart
+- example/log_kit_example.dart → example/logger_kit_example.dart
+- benchmark/log_kit_benchmark.dart → benchmark/logger_kit_benchmark.dart
+- test/log_kit_test.dart → test/logger_kit_test.dart
+
+Files updated:
+- pubspec.yaml
+- README.md
+- CONTRIBUTING.md
+- doc/GETTING_STARTED.md
+- doc/USAGE_GUIDE.md
+- doc/ARCHITECTURE.md
+- doc/API.md
+- doc/QUICK_REFERENCE.md
+- doc/CODE_STYLE.md
+- CHANGELOG.md
+- .github/README_BADGES.md
+- All test files
+- All example and benchmark files
+```
+
+**文件**:
+- `lib/logger_kit.dart` (新)
+- `lib/src/core/logger_kit.dart` (新)
+- `example/logger_kit_example.dart` (新)
+- `benchmark/logger_kit_benchmark.dart` (新)
+- `test/logger_kit_test.dart` (新)
+- `pubspec.yaml` (更新)
+- `README.md` (更新)
+- `CONTRIBUTING.md` (更新)
+- `doc/GETTING_STARTED.md` (更新)
+- `doc/USAGE_GUIDE.md` (更新)
+- `doc/ARCHITECTURE.md` (更新)
+- `doc/API.md` (更新)
+- `doc/QUICK_REFERENCE.md` (更新)
+- `doc/CODE_STYLE.md` (更新)
+- `CHANGELOG.md` (更新)
+- `.github/README_BADGES.md` (更新)
+- `test/log_filter_test.dart` (更新)
+- `test/log_formatter_test.dart` (更新)
+- `test/log_level_test.dart` (更新)
+- `test/log_record_test.dart` (更新)
+
 ---
 
 ## 提交顺序总结
@@ -311,7 +368,7 @@ chore: add project metadata and configuration
 3. ✅ `feat(formatters): implement log formatters`
 4. ✅ `feat(writers): implement log writers`
 5. ✅ `feat(filters): implement log filters`
-6. ✅ `feat(core): implement Logger and LogKit classes`
+6. ✅ `feat(core): implement Logger and LoggerKit classes`
 7. ✅ `docs(example): add example application`
 8. ✅ `docs: add comprehensive documentation`
 9. ✅ `docs: add advanced documentation`
@@ -321,6 +378,7 @@ chore: add project metadata and configuration
 13. ✅ `style: format code and fix lint issues`
 14. ✅ `fix(writers): improve file writer cleanup on Windows`
 15. ✅ `chore: add project metadata and configuration`
+16. ⏳ `refactor: rename project from log_kit to logger_kit`
 
 ---
 
@@ -350,7 +408,19 @@ git commit -m "feat(models): add core data models
 
 BREAKING CHANGE: Initial implementation"
 
-# ... 继续其他提交
+# ... 继续其他提交 ...
+
+# Commit 16: 项目重命名
+git add -A
+git commit -m "refactor: rename project from log_kit to logger_kit
+
+- Rename package from log_kit to logger_kit
+- Rename class from LogKit to LoggerKit
+- Update all file names to use logger_kit
+- Update all imports and references
+- Update documentation with new package name
+- Update GitHub URL to https://github.com/h1s97x/LoggerKit
+- Update pub.dev package references"
 ```
 
 ### 方式 2: 批量提交
@@ -360,7 +430,7 @@ BREAKING CHANGE: Initial implementation"
 git add .
 
 # 创建初始提交
-git commit -m "feat: initial LogKit implementation
+git commit -m "feat: initial LoggerKit implementation
 
 Complete logging toolkit for Flutter with:
 - Multi-level logging (debug, info, warning, error, fatal)
@@ -394,7 +464,7 @@ git commit -m "test: add unit tests"
 
 ```bash
 # 添加远程仓库
-git remote add origin https://github.com/h1s97x/LogKit.git
+git remote add origin https://github.com/h1s97x/LoggerKit.git
 
 # 推送到 main 分支
 git push -u origin main
@@ -492,7 +562,7 @@ git branch -d feature/add-custom-formatter
 
 ---
 
-**项目**: LogKit  
+**项目**: LoggerKit  
 **版本**: 1.0.0  
 **日期**: 2026-03-09  
-**项目地址**: https://github.com/h1s97x/LogKit
+**项目地址**: https://github.com/h1s97x/LoggerKit
