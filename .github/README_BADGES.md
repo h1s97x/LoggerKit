@@ -1,23 +1,23 @@
-# LogKit 项目徽章
+﻿# LoggerKit 项目徽章
 
 在 README.md 中添加以下徽章：
 
 ## CI 状态
 
 ```markdown
-[![Dart CI](https://github.com/h1s97x/LogKit/actions/workflows/dart.yml/badge.svg)](https://github.com/h1s97x/LogKit/actions/workflows/dart.yml)
+[![Dart CI](https://github.com/h1s97x/LoggerKit/actions/workflows/dart.yml/badge.svg)](https://github.com/h1s97x/LoggerKit/actions/workflows/dart.yml)
 ```
 
 ## 代码覆盖率
 
 ```markdown
-[![codecov](https://codecov.io/gh/h1s97x/LogKit/branch/main/graph/badge.svg)](https://codecov.io/gh/h1s97x/LogKit)
+[![codecov](https://codecov.io/gh/h1s97x/LoggerKit/branch/main/graph/badge.svg)](https://codecov.io/gh/h1s97x/LoggerKit)
 ```
 
 ## 版本
 
 ```markdown
-[![pub package](https://img.shields.io/pub/v/log_kit.svg)](https://pub.dev/packages/log_kit)
+[![pub package](https://img.shields.io/pub/v/logger_kit.svg)](https://pub.dev/packages/logger_kit)
 ```
 
 ## 许可证
@@ -36,10 +36,10 @@
 ## 完整示例
 
 ```markdown
-# LogKit
+# LoggerKit
 
-[![Dart CI](https://github.com/h1s97x/LogKit/actions/workflows/dart.yml/badge.svg)](https://github.com/h1s97x/LogKit/actions/workflows/dart.yml)
-[![codecov](https://codecov.io/gh/h1s97x/LogKit/branch/main/graph/badge.svg)](https://codecov.io/gh/h1s97x/LogKit)
+[![Dart CI](https://github.com/h1s97x/LoggerKit/actions/workflows/dart.yml/badge.svg)](https://github.com/h1s97x/LoggerKit/actions/workflows/dart.yml)
+[![codecov](https://codecov.io/gh/h1s97x/LoggerKit/branch/main/graph/badge.svg)](https://codecov.io/gh/h1s97x/LoggerKit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Dart](https://img.shields.io/badge/Dart-3.0%2B-blue.svg)](https://dart.dev)
 [![Flutter](https://img.shields.io/badge/Flutter-3.3%2B-blue.svg)](https://flutter.dev)

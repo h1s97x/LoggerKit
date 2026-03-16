@@ -1,7 +1,7 @@
-name: log_kit
+name: logger_kit
 description: A comprehensive logging toolkit for Flutter with console, file, and remote logging support.
 version: 1.0.0
-homepage: https://github.com/h1s97x/LogKit
+homepage: https://github.com/h1s97x/LoggerKit
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
