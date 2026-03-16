@@ -1,3 +1,6 @@
+// ignore: unnecessary_library_name
+library logger_kit;
+
 export 'src/core/logger_kit.dart';
 export 'src/core/logger.dart';
 export 'src/models/models.dart';

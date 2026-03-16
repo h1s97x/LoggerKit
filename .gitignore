@@ -30,3 +30,4 @@ migrate_working_dir/
 /build/
 /coverage/
 /logs/
+COMMIT_PLAN.md
