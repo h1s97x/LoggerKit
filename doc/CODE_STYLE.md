@@ -1,6 +1,6 @@
-# LogKit 代码风格指南
+﻿# LoggerKit 代码风格指南
 
-本文档定义了 LogKit 项目的代码风格规范。
+本文档定义了 LoggerKit 项目的代码风格规范。
 
 ## 基本原则
 
@@ -19,13 +19,13 @@
 
 ```dart
 ✅ 好的示例
-class LogKit {}
+class LoggerKit {}
 class Logger {}
 class LogFormatter {}
 class FileWriter {}
 
 ❌ 不好的示例
-class log_kit {}
+class logger_kit {}
 class logger {}
 class logFormatter {}
 class file_writer {}
@@ -77,13 +77,13 @@ Logger? instance;
 
 ```dart
 ✅ 好的示例
-log_kit.dart
+logger_kit.dart
 logger.dart
 log_formatter.dart
 file_writer.dart
 
 ❌ 不好的示例
-LogKit.dart
+LoggerKit.dart
 Logger.dart
 logFormatter.dart
 FileWriter.dart
@@ -115,14 +115,14 @@ class Logger {
 
 ```dart
 ✅ 好的示例
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug,
   enableConsole: true,
   enableFile: true,
 );
 
 ❌ 不好的示例
-LogKit.init(minLevel: LogLevel.debug, enableConsole: true, enableFile: true, filePath: 'logs');
+LoggerKit.init(minLevel: LogLevel.debug, enableConsole: true, enableFile: true, filePath: 'logs');
 ```
 
 #### 导入顺序
@@ -166,7 +166,7 @@ import 'package:flutter/foundation.dart';
 ///
 /// 示例:
 /// ```dart
-/// LogKit.i('User logged in', tag: 'AUTH');
+/// LoggerKit.i('User logged in', tag: 'AUTH');
 /// ```
 static void i(String message, {String? tag, Map<String, dynamic>? data}) {
   // 实现
@@ -183,7 +183,7 @@ static void i(String message, {String? tag, Map<String, dynamic>? data}) {
 
 ```dart
 ✅ 好的示例
-/// 初始化 LogKit。
+/// 初始化 LoggerKit。
 ///
 /// [minLevel] 最小日志级别，默认 [LogLevel.debug]。
 /// [enableConsole] 启用控制台输出，默认 `true`。
@@ -192,7 +192,7 @@ static void i(String message, {String? tag, Map<String, dynamic>? data}) {
 ///
 /// 示例:
 /// ```dart
-/// LogKit.init(
+/// LoggerKit.init(
 ///   minLevel: LogLevel.debug,
 ///   enableConsole: true,
 /// );
@@ -410,7 +410,7 @@ abstract class LogHandler {
 ```dart
 ✅ 好的示例
 test('should record debug log', () {
-  LogKit.d('Debug message');
+  LoggerKit.d('Debug message');
   // 验证
 });
 
@@ -433,14 +433,14 @@ test('debug', () {
 
 ```dart
 ✅ 好的示例
-group('LogKit', () {
+group('LoggerKit', () {
   group('init', () {
     test('should initialize with default config', () {
       // Arrange
       // Act
-      LogKit.init();
+      LoggerKit.init();
       // Assert
-      expect(LogKit.instance, isNotNull);
+      expect(LoggerKit.instance, isNotNull);
     });
     
     test('should initialize with custom config', () {
@@ -456,10 +456,10 @@ group('LogKit', () {
 });
 
 ❌ 不好的示例
-test('test LogKit', () {
-  LogKit.init();
-  LogKit.d('Debug');
-  LogKit.i('Info');
+test('test LoggerKit', () {
+  LoggerKit.init();
+  LoggerKit.d('Debug');
+  LoggerKit.i('Info');
   // 多个测试混在一起
 });
 ```
@@ -550,10 +550,10 @@ flutter analyze
 flutter test
 
 # 运行示例
-dart example/log_kit_example.dart
+dart example/logger_kit_example.dart
 
 # 运行基准测试
-dart benchmark/log_kit_benchmark.dart
+dart benchmark/logger_kit_benchmark.dart
 ```
 
 ---
@@ -623,14 +623,14 @@ bool shouldLog(LogRecord record) {
 
 ```dart
 ✅ 好的示例
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug,
   enableConsole: true,
   enableFile: true,
 );
 
 ❌ 不好的示例
-LogKit.init(LogLevel.debug, true, true);
+LoggerKit.init(LogLevel.debug, true, true);
 ```
 
 ### 5. 避免过长的方法
@@ -776,5 +776,5 @@ class Logger {
 
 **文档版本**: 1.0  
 **创建日期**: 2026-03-09  
-**项目**: LogKit  
-**项目地址**: https://github.com/h1s97x/LogKit
+**项目**: LoggerKit  
+**项目地址**: https://github.com/h1s97x/LoggerKit

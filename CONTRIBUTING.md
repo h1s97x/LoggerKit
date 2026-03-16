@@ -1,21 +1,21 @@
-# 贡献指南
+﻿# 贡献指南
 
-感谢您对 LogKit 项目的关注！本指南将帮助您为项目做出贡献。
+感谢您对 LoggerKit 项目的关注！本指南将帮助您为项目做出贡献。
 
 ## 项目概览
 
-LogKit 是一个功能完善的 Flutter 日志工具包，支持控制台、文件和远程日志记录。
+LoggerKit 是一个功能完善的 Flutter 日志工具包，支持控制台、文件和远程日志记录。
 
 ## 架构概览
 
 ```text
-log_kit/
+logger_kit/
 ├── lib/
-│   ├── log_kit.dart                    # 主导出文件
+│   ├── logger_kit.dart                 # 主导出文件
 │   └── src/
 │       ├── core/                        # 核心类
 │       │   ├── logger.dart             # 日志记录器
-│       │   └── log_kit.dart            # 全局管理器
+│       │   └── logger_kit.dart         # 全局管理器
 │       ├── models/                      # 数据模型
 │       │   ├── log_level.dart          # 日志级别
 │       │   ├── log_record.dart         # 日志记录
@@ -31,9 +31,9 @@ log_kit/
 │           └── log_filter.dart         # 日志过滤
 │
 ├── example/                             # 示例应用
-│   └── log_kit_example.dart
+│   └── logger_kit_example.dart
 ├── benchmark/                           # 性能测试
-│   └── log_kit_benchmark.dart
+│   └── logger_kit_benchmark.dart
 ├── test/                                # 单元测试
 └── doc/                                 # 文档
     └── USAGE_GUIDE.md
@@ -127,13 +127,13 @@ flutter test
 ### 运行基准测试
 
 ```bash
-dart benchmark/log_kit_benchmark.dart
+dart benchmark/logger_kit_benchmark.dart
 ```
 
 ### 运行示例
 
 ```bash
-dart example/log_kit_example.dart
+dart example/logger_kit_example.dart
 ```
 
 ## Pull Request 流程
@@ -181,9 +181,9 @@ docs: 更新使用指南
 
 ## 获取帮助
 
-- 查看现有 [issues](https://github.com/h1s97x/LogKit/issues)
-- 阅读 [文档](https://github.com/h1s97x/LogKit/blob/main/README.md)
-- 在 [discussions](https://github.com/h1s97x/LogKit/discussions) 提问
+- 查看现有 [issues](https://github.com/h1s97x/LoggerKit/issues)
+- 阅读 [文档](https://github.com/h1s97x/LoggerKit/blob/main/README.md)
+- 在 [discussions](https://github.com/h1s97x/LoggerKit/discussions) 提问
 
 ## 行为准则
 
@@ -204,9 +204,9 @@ docs: 更新使用指南
 - 发布说明
 - 项目 README
 
-感谢您为 LogKit 做出贡献！
+感谢您为 LoggerKit 做出贡献！
 
 ---
 
-**项目地址**: https://github.com/h1s97x/LogKit  
+**项目地址**: https://github.com/h1s97x/LoggerKit  
 **许可证**: MIT

@@ -1,4 +1,4 @@
-# log_kit
+﻿# LoggerKit
 
 一个功能完善的Flutter日志工具包，支持控制台、文件和远程日志记录。
 
@@ -19,17 +19,17 @@
 
 ```yaml
 dependencies:
-  log_kit:
-    path: ../log_kit  # 本地路径
+  logger_kit:
+    path: ../logger_kit  # 本地路径
 ```
 
 或使用Git依赖：
 
 ```yaml
 dependencies:
-  log_kit:
+  logger_kit:
     git:
-      url: https://github.com/h1s97x/LogKit.git
+      url: https://github.com/h1s97x/LoggerKit.git
       ref: main
 ```
 
@@ -38,11 +38,11 @@ dependencies:
 ### 1. 初始化
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() {
-  // 初始化LogKit
-  LogKit.init(
+  // 初始化LoggerKit
+  LoggerKit.init(
     minLevel: LogLevel.debug,
     enableConsole: true,
     enableFile: true,
@@ -59,33 +59,33 @@ void main() {
 
 ```dart
 // Debug日志
-LogKit.d('This is a debug message');
+LoggerKit.d('This is a debug message');
 
 // Info日志
-LogKit.i('This is an info message');
+LoggerKit.i('This is an info message');
 
 // Warning日志
-LogKit.w('This is a warning message');
+LoggerKit.w('This is a warning message');
 
 // Error日志
-LogKit.e('This is an error message');
+LoggerKit.e('This is an error message');
 
 // Fatal日志
-LogKit.f('This is a fatal error');
+LoggerKit.f('This is a fatal error');
 ```
 
 ### 3. 带标签的日志
 
 ```dart
-LogKit.i('User logged in', tag: 'AUTH');
-LogKit.i('Data loaded', tag: 'DATA');
-LogKit.e('Network error', tag: 'NETWORK');
+LoggerKit.i('User logged in', tag: 'AUTH');
+LoggerKit.i('Data loaded', tag: 'DATA');
+LoggerKit.e('Network error', tag: 'NETWORK');
 ```
 
 ### 4. 带额外数据的日志
 
 ```dart
-LogKit.i(
+LoggerKit.i(
   'API request completed',
   tag: 'API',
   data: {
@@ -104,7 +104,7 @@ try {
   // 可能抛出异常的代码
   throw Exception('Something went wrong!');
 } catch (e, stack) {
-  LogKit.e(
+  LoggerKit.e(
     'Failed to process data',
     tag: 'ERROR',
     error: e,
@@ -117,12 +117,12 @@ try {
 
 ```dart
 // 记录用户行为事件
-LogKit.event('user_login', data: {
+LoggerKit.event('user_login', data: {
   'userId': '12345',
   'timestamp': DateTime.now().toIso8601String(),
 });
 
-LogKit.event('button_clicked', data: {
+LoggerKit.event('button_clicked', data: {
   'buttonId': 'submit_button',
   'screen': 'home',
 });
@@ -131,7 +131,7 @@ LogKit.event('button_clicked', data: {
 ### 7. 高级配置
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.info,           // 最小日志级别
   enableConsole: true,                // 启用控制台输出
   enableFile: true,                   // 启用文件日志
@@ -149,20 +149,20 @@ LogKit.init(
 
 ## API参考
 
-### LogKit
+### LoggerKit
 
 全局日志管理器。
 
 #### 方法
 
-- `static void init({...})` - 初始化LogKit
+- `static void init({...})` - 初始化LoggerKit
 - `static void d(String message, {...})` - Debug日志
 - `static void i(String message, {...})` - Info日志
 - `static void w(String message, {...})` - Warning日志
 - `static void e(String message, {...})` - Error日志
 - `static void f(String message, {...})` - Fatal日志
 - `static void event(String name, {...})` - 事件日志
-- `static Future<void> close()` - 关闭LogKit
+- `static Future<void> close()` - 关闭LoggerKit
 
 ### LogLevel
 
@@ -257,15 +257,15 @@ logs/
 ### 1. 使用标签分类
 
 ```dart
-LogKit.i('User action', tag: 'USER');
-LogKit.i('Network request', tag: 'NETWORK');
-LogKit.i('Database operation', tag: 'DB');
+LoggerKit.i('User action', tag: 'USER');
+LoggerKit.i('Network request', tag: 'NETWORK');
+LoggerKit.i('Database operation', tag: 'DB');
 ```
 
 ### 2. 生产环境配置
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.warning,  // 只记录警告及以上
   enableConsole: false,         // 关闭控制台输出
   enableFile: true,             // 启用文件日志
@@ -276,7 +276,7 @@ LogKit.init(
 ### 3. 开发环境配置
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug,     // 记录所有日志
   enableConsole: true,          // 启用控制台输出
   enableFile: false,            // 关闭文件日志
@@ -290,7 +290,7 @@ LogKit.init(
 ```dart
 @override
 void dispose() {
-  LogKit.close();
+  LoggerKit.close();
   super.dispose();
 }
 ```
@@ -302,7 +302,7 @@ void dispose() {
 运行示例：
 
 ```bash
-dart example/log_kit_example.dart
+dart example/logger_kit_example.dart
 ```
 
 ## 常见问题
@@ -343,5 +343,5 @@ MIT License
 
 ---
 
-**项目地址**: https://github.com/h1s97x/LogKit  
+**项目地址**: https://github.com/h1s97x/LoggerKit  
 **版本**: 1.0.0

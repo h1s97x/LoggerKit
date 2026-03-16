@@ -1,10 +1,10 @@
-# LogKit API 参考
+﻿# LoggerKit API 参考
 
-本文档提供 LogKit 的完整 API 参考。
+本文档提供 LoggerKit 的完整 API 参考。
 
 ## 目录
 
-- [LogKit](#logkit)
+- [LoggerKit](#LoggerKit)
 - [Logger](#logger)
 - [数据模型](#数据模型)
 - [格式化器](#格式化器)
@@ -14,13 +14,13 @@
 
 ---
 
-## LogKit
+## LoggerKit
 
 全局日志管理器，提供便捷的静态方法。
 
 ### init
 
-初始化 LogKit。
+初始化 LoggerKit。
 
 ```dart
 static void init({
@@ -57,7 +57,7 @@ static void init({
 **示例**:
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug,
   enableConsole: true,
   enableFile: true,
@@ -84,8 +84,8 @@ static void d(String message, {String? tag, Map<String, dynamic>? data})
 **示例**:
 
 ```dart
-LogKit.d('Debug message');
-LogKit.d('User data loaded', tag: 'DATA', data: {'count': 10});
+LoggerKit.d('Debug message');
+LoggerKit.d('User data loaded', tag: 'DATA', data: {'count': 10});
 ```
 
 ---
@@ -107,8 +107,8 @@ static void i(String message, {String? tag, Map<String, dynamic>? data})
 **示例**:
 
 ```dart
-LogKit.i('Info message');
-LogKit.i('User logged in', tag: 'AUTH', data: {'userId': '12345'});
+LoggerKit.i('Info message');
+LoggerKit.i('User logged in', tag: 'AUTH', data: {'userId': '12345'});
 ```
 
 ---
@@ -130,8 +130,8 @@ static void w(String message, {String? tag, Map<String, dynamic>? data})
 **示例**:
 
 ```dart
-LogKit.w('Warning message');
-LogKit.w('API rate limit approaching', tag: 'API', data: {'remaining': 10});
+LoggerKit.w('Warning message');
+LoggerKit.w('API rate limit approaching', tag: 'API', data: {'remaining': 10});
 ```
 
 ---
@@ -164,7 +164,7 @@ static void e(
 try {
   throw Exception('Something went wrong');
 } catch (e, stack) {
-  LogKit.e(
+  LoggerKit.e(
     'Failed to process data',
     tag: 'ERROR',
     error: e,
@@ -200,7 +200,7 @@ static void f(
 **示例**:
 
 ```dart
-LogKit.f(
+LoggerKit.f(
   'Critical system failure',
   tag: 'SYSTEM',
   error: error,
@@ -226,12 +226,12 @@ static void event(String name, {Map<String, dynamic>? data})
 **示例**:
 
 ```dart
-LogKit.event('user_login', data: {
+LoggerKit.event('user_login', data: {
   'userId': '12345',
   'timestamp': DateTime.now().toIso8601String(),
 });
 
-LogKit.event('button_clicked', data: {
+LoggerKit.event('button_clicked', data: {
   'buttonId': 'submit_button',
   'screen': 'home',
 });
@@ -241,7 +241,7 @@ LogKit.event('button_clicked', data: {
 
 ### close
 
-关闭 LogKit，释放资源。
+关闭 LoggerKit，释放资源。
 
 ```dart
 static Future<void> close()
@@ -252,7 +252,7 @@ static Future<void> close()
 ```dart
 @override
 void dispose() {
-  LogKit.close();
+  LoggerKit.close();
   super.dispose();
 }
 ```
@@ -272,7 +272,7 @@ static Logger get instance
 **示例**:
 
 ```dart
-final logger = LogKit.instance;
+final logger = LoggerKit.instance;
 logger.addFilter(MyCustomFilter());
 ```
 
@@ -776,30 +776,30 @@ logger.addFilter(filter);
 ### 基础使用
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() {
   // 初始化
-  LogKit.init(
+  LoggerKit.init(
     minLevel: LogLevel.debug,
     enableConsole: true,
   );
 
   // 记录日志
-  LogKit.d('Debug message');
-  LogKit.i('Info message');
-  LogKit.w('Warning message');
-  LogKit.e('Error message');
+  LoggerKit.d('Debug message');
+  LoggerKit.i('Info message');
+  LoggerKit.w('Warning message');
+  LoggerKit.e('Error message');
 
   // 关闭
-  LogKit.close();
+  LoggerKit.close();
 }
 ```
 
 ### 高级使用
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() async {
   // 自定义配置
@@ -837,11 +837,11 @@ void main() async {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() {
   // 初始化日志
-  LogKit.init(
+  LoggerKit.init(
     minLevel: kDebugMode ? LogLevel.debug : LogLevel.warning,
     enableConsole: kDebugMode,
     enableFile: true,
@@ -852,7 +852,7 @@ void main() {
 
   // 捕获全局错误
   FlutterError.onError = (details) {
-    LogKit.e(
+    LoggerKit.e(
       'Flutter error',
       tag: 'FLUTTER',
       error: details.exception,
@@ -867,7 +867,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LogKit Demo',
+      title: 'LoggerKit Demo',
       home: HomePage(),
     );
   }
@@ -882,23 +882,23 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    LogKit.event('page_view', data: {
+    LoggerKit.event('page_view', data: {
       'page': 'HomePage',
     });
   }
 
   Future<void> _fetchData() async {
-    LogKit.i('Fetching data', tag: 'NETWORK');
+    LoggerKit.i('Fetching data', tag: 'NETWORK');
 
     try {
       // 模拟网络请求
       await Future.delayed(Duration(seconds: 2));
 
-      LogKit.i('Data fetched', tag: 'NETWORK', data: {
+      LoggerKit.i('Data fetched', tag: 'NETWORK', data: {
         'itemCount': 10,
       });
     } catch (e, stack) {
-      LogKit.e(
+      LoggerKit.e(
         'Failed to fetch data',
         tag: 'NETWORK',
         error: e,
@@ -910,7 +910,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('LogKit Demo')),
+      appBar: AppBar(title: Text('LoggerKit Demo')),
       body: Center(
         child: ElevatedButton(
           onPressed: _fetchData,
@@ -922,7 +922,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    LogKit.close();
+    LoggerKit.close();
     super.dispose();
   }
 }
@@ -942,5 +942,5 @@ class _HomePageState extends State<HomePage> {
 
 **文档版本**: 1.0  
 **更新日期**: 2026-03-09  
-**项目**: LogKit  
-**项目地址**: https://github.com/h1s97x/LogKit
+**项目**: LoggerKit  
+**项目地址**: https://github.com/h1s97x/LoggerKit

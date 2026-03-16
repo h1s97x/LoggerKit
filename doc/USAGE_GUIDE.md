@@ -1,6 +1,6 @@
-# LogKit 使用指南
+﻿# LoggerKit 使用指南
 
-本文档提供 LogKit 的详细使用指南和最佳实践。
+本文档提供 LoggerKit 的详细使用指南和最佳实践。
 
 ## 目录
 
@@ -19,16 +19,16 @@
 
 ```yaml
 dependencies:
-  log_kit:
+  logger_kit:
     git:
-      url: https://github.com/h1s97x/LogKit.git
+      url: https://github.com/h1s97x/LoggerKit.git
       ref: main
 ```
 
 ### 导入包
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 ```
 
 ## 基础使用
@@ -38,10 +38,10 @@ import 'package:log_kit/log_kit.dart';
 ```dart
 void main() {
   // 基础初始化
-  LogKit.init();
+  LoggerKit.init();
 
   // 或使用自定义配置
-  LogKit.init(
+  LoggerKit.init(
     minLevel: LogLevel.debug,
     enableConsole: true,
     enableFile: true,
@@ -56,33 +56,33 @@ void main() {
 
 ```dart
 // Debug 日志
-LogKit.d('This is a debug message');
+LoggerKit.d('This is a debug message');
 
 // Info 日志
-LogKit.i('This is an info message');
+LoggerKit.i('This is an info message');
 
 // Warning 日志
-LogKit.w('This is a warning message');
+LoggerKit.w('This is a warning message');
 
 // Error 日志
-LogKit.e('This is an error message');
+LoggerKit.e('This is an error message');
 
 // Fatal 日志
-LogKit.f('This is a fatal error');
+LoggerKit.f('This is a fatal error');
 ```
 
 ### 3. 带标签的日志
 
 ```dart
-LogKit.i('User logged in', tag: 'AUTH');
-LogKit.i('Data loaded', tag: 'DATA');
-LogKit.e('Network error', tag: 'NETWORK');
+LoggerKit.i('User logged in', tag: 'AUTH');
+LoggerKit.i('Data loaded', tag: 'DATA');
+LoggerKit.e('Network error', tag: 'NETWORK');
 ```
 
 ### 4. 带数据的日志
 
 ```dart
-LogKit.i(
+LoggerKit.i(
   'API request completed',
   tag: 'API',
   data: {
@@ -100,7 +100,7 @@ LogKit.i(
 try {
   throw Exception('Something went wrong!');
 } catch (e, stack) {
-  LogKit.e(
+  LoggerKit.e(
     'Failed to process data',
     tag: 'ERROR',
     error: e,
@@ -113,12 +113,12 @@ try {
 
 ```dart
 // 记录用户行为事件
-LogKit.event('user_login', data: {
+LoggerKit.event('user_login', data: {
   'userId': '12345',
   'timestamp': DateTime.now().toIso8601String(),
 });
 
-LogKit.event('button_clicked', data: {
+LoggerKit.event('button_clicked', data: {
   'buttonId': 'submit_button',
   'screen': 'home',
 });
@@ -129,7 +129,7 @@ LogKit.event('button_clicked', data: {
 ### 1. 自定义格式化器
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 class CustomFormatter implements LogFormatter {
   @override
@@ -155,7 +155,7 @@ final logger = Logger(
 ### 2. 自定义过滤器
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 class CustomFilter implements LogFilter {
   @override
@@ -173,7 +173,7 @@ logger.addFilter(CustomFilter());
 ### 3. 自定义写入器
 
 ```dart
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 class CustomWriter implements LogWriter {
   @override
@@ -194,7 +194,7 @@ class CustomWriter implements LogWriter {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() {
   // 初始化日志系统
@@ -202,7 +202,7 @@ void main() {
 
   // 捕获全局错误
   FlutterError.onError = (details) {
-    LogKit.e(
+    LoggerKit.e(
       'Flutter error',
       tag: 'FLUTTER',
       error: details.exception,
@@ -216,7 +216,7 @@ void main() {
 void _initLogging() {
   if (kDebugMode) {
     // 开发环境配置
-    LogKit.init(
+    LoggerKit.init(
       minLevel: LogLevel.debug,
       enableConsole: true,
       enableFile: false,
@@ -226,7 +226,7 @@ void _initLogging() {
     );
   } else {
     // 生产环境配置
-    LogKit.init(
+    LoggerKit.init(
       minLevel: LogLevel.warning,
       enableConsole: false,
       enableFile: true,
@@ -243,7 +243,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LogKit Demo',
+      title: 'LoggerKit Demo',
       home: HomePage(),
     );
   }
@@ -258,25 +258,25 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    LogKit.event('page_view', data: {
+    LoggerKit.event('page_view', data: {
       'page': 'HomePage',
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
 
   Future<void> _fetchData() async {
-    LogKit.i('Fetching data', tag: 'NETWORK');
+    LoggerKit.i('Fetching data', tag: 'NETWORK');
     
     try {
       // 模拟网络请求
       await Future.delayed(Duration(seconds: 2));
       
-      LogKit.i('Data fetched successfully', tag: 'NETWORK', data: {
+      LoggerKit.i('Data fetched successfully', tag: 'NETWORK', data: {
         'itemCount': 10,
         'duration': 2000,
       });
     } catch (e, stack) {
-      LogKit.e(
+      LoggerKit.e(
         'Failed to fetch data',
         tag: 'NETWORK',
         error: e,
@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('LogKit Demo')),
+      appBar: AppBar(title: Text('LoggerKit Demo')),
       body: Center(
         child: ElevatedButton(
           onPressed: _fetchData,
@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    LogKit.close();
+    LoggerKit.close();
     super.dispose();
   }
 }
@@ -330,7 +330,7 @@ class _HomePageState extends State<HomePage> {
 #### 开发环境
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug,
   enableConsole: true,
   enableFile: false,
@@ -343,7 +343,7 @@ LogKit.init(
 #### 测试环境
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.info,
   enableConsole: true,
   enableFile: true,
@@ -357,7 +357,7 @@ LogKit.init(
 #### 生产环境
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.warning,
   enableConsole: false,
   enableFile: true,
@@ -376,26 +376,26 @@ LogKit.init(
 
 ```dart
 // 网络请求
-LogKit.i('API request', tag: 'NETWORK');
+LoggerKit.i('API request', tag: 'NETWORK');
 
 // 数据库操作
-LogKit.i('Database query', tag: 'DB');
+LoggerKit.i('Database query', tag: 'DB');
 
 // 用户行为
-LogKit.i('User action', tag: 'USER');
+LoggerKit.i('User action', tag: 'USER');
 
 // 认证相关
-LogKit.i('Login attempt', tag: 'AUTH');
+LoggerKit.i('Login attempt', tag: 'AUTH');
 
 // 业务逻辑
-LogKit.i('Business logic', tag: 'BUSINESS');
+LoggerKit.i('Business logic', tag: 'BUSINESS');
 ```
 
 ### 2. 记录关键信息
 
 ```dart
 // 记录 API 请求
-LogKit.i('API request', tag: 'API', data: {
+LoggerKit.i('API request', tag: 'API', data: {
   'url': url,
   'method': method,
   'headers': headers,
@@ -403,7 +403,7 @@ LogKit.i('API request', tag: 'API', data: {
 });
 
 // 记录 API 响应
-LogKit.i('API response', tag: 'API', data: {
+LoggerKit.i('API response', tag: 'API', data: {
   'url': url,
   'status': statusCode,
   'duration': duration,
@@ -414,7 +414,7 @@ LogKit.i('API response', tag: 'API', data: {
 try {
   await fetchData();
 } catch (e, stack) {
-  LogKit.e(
+  LoggerKit.e(
     'Failed to fetch data',
     tag: 'NETWORK',
     error: e,
@@ -434,7 +434,7 @@ try {
 @override
 void initState() {
   super.initState();
-  LogKit.event('page_view', data: {
+  LoggerKit.event('page_view', data: {
     'page': 'HomePage',
     'timestamp': DateTime.now().toIso8601String(),
   });
@@ -442,7 +442,7 @@ void initState() {
 
 // 按钮点击
 void _onButtonClick() {
-  LogKit.event('button_clicked', data: {
+  LoggerKit.event('button_clicked', data: {
     'buttonId': 'submit_button',
     'screen': 'home',
     'timestamp': DateTime.now().toIso8601String(),
@@ -451,7 +451,7 @@ void _onButtonClick() {
 
 // 用户登录
 void _onLogin(String userId) {
-  LogKit.event('user_login', data: {
+  LoggerKit.event('user_login', data: {
     'userId': userId,
     'timestamp': DateTime.now().toIso8601String(),
   });
@@ -459,7 +459,7 @@ void _onLogin(String userId) {
 
 // 用户登出
 void _onLogout() {
-  LogKit.event('user_logout', data: {
+  LoggerKit.event('user_logout', data: {
     'timestamp': DateTime.now().toIso8601String(),
   });
 }
@@ -475,13 +475,13 @@ Future<void> _performOperation() async {
     await someOperation();
     
     stopwatch.stop();
-    LogKit.i('Operation completed', tag: 'PERFORMANCE', data: {
+    LoggerKit.i('Operation completed', tag: 'PERFORMANCE', data: {
       'operation': 'someOperation',
       'duration': stopwatch.elapsedMilliseconds,
     });
   } catch (e, stack) {
     stopwatch.stop();
-    LogKit.e(
+    LoggerKit.e(
       'Operation failed',
       tag: 'PERFORMANCE',
       error: e,
@@ -500,19 +500,19 @@ Future<void> _performOperation() async {
 ```dart
 class MyService {
   MyService() {
-    LogKit.i('Service initialized', tag: 'SERVICE');
+    LoggerKit.i('Service initialized', tag: 'SERVICE');
   }
 
   Future<void> dispose() async {
-    LogKit.i('Service disposing', tag: 'SERVICE');
-    await LogKit.close();
+    LoggerKit.i('Service disposing', tag: 'SERVICE');
+    await LoggerKit.close();
   }
 }
 
 // 在应用退出时关闭
 @override
 void dispose() {
-  LogKit.close();
+  LoggerKit.close();
   super.dispose();
 }
 ```
@@ -529,7 +529,7 @@ void dispose() {
 
 ```dart
 // 确保 minLevel 不会过滤掉你的日志
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug, // 设置为最低级别
 );
 ```
@@ -537,7 +537,7 @@ LogKit.init(
 2. 检查是否启用了输出
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   enableConsole: true, // 确保启用控制台输出
 );
 ```
@@ -546,7 +546,7 @@ LogKit.init(
 
 ```dart
 // 确保在使用前初始化
-LogKit.init();
+LoggerKit.init();
 ```
 
 ### 问题 2: 文件日志没有生成
@@ -558,7 +558,7 @@ LogKit.init();
 1. 检查文件路径
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   enableFile: true,
   filePath: 'logs', // 确保路径正确
 );
@@ -571,7 +571,7 @@ LogKit.init(
 3. 检查日志是否被过滤
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.debug, // 降低过滤级别
   enableFile: true,
 );
@@ -592,7 +592,7 @@ LogKit.init(
 2. 检查服务器 URL
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   enableRemote: true,
   remoteUrl: 'https://log.example.com/api/logs', // 确保 URL 正确
 );
@@ -611,7 +611,7 @@ LogKit.init(
 1. 调整文件大小限制
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   maxFileSize: 5 * 1024 * 1024, // 减小单个文件大小
   maxFileCount: 3, // 减少保留文件数量
 );
@@ -620,7 +620,7 @@ LogKit.init(
 2. 提高日志级别
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.warning, // 只记录警告及以上
 );
 ```
@@ -634,7 +634,7 @@ LogKit.init(
 1. 关闭不必要的输出
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   enableConsole: false, // 生产环境关闭控制台
 );
 ```
@@ -642,26 +642,26 @@ LogKit.init(
 2. 提高日志级别
 
 ```dart
-LogKit.init(
+LoggerKit.init(
   minLevel: LogLevel.warning, // 减少日志数量
 );
 ```
 
 3. 使用异步日志
 
-LogKit 默认使用异步写入，不会阻塞主线程。
+LoggerKit 默认使用异步写入，不会阻塞主线程。
 
 ## 更多资源
 
 - [快速开始](../GETTING_STARTED.md) - 快速入门指南
 - [README](../README.md) - 项目概述
-- [GitHub 仓库](https://github.com/h1s97x/LogKit)
-- [问题追踪](https://github.com/h1s97x/LogKit/issues)
-- [示例应用](https://github.com/h1s97x/LogKit/tree/main/example)
+- [GitHub 仓库](https://github.com/h1s97x/LoggerKit)
+- [问题追踪](https://github.com/h1s97x/LoggerKit/issues)
+- [示例应用](https://github.com/h1s97x/LoggerKit/tree/main/example)
 
 ---
 
 **文档版本**: 1.0  
 **更新日期**: 2026-03-09  
-**项目**: LogKit  
-**项目地址**: https://github.com/h1s97x/LogKit
+**项目**: LoggerKit  
+**项目地址**: https://github.com/h1s97x/LoggerKit
