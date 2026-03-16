@@ -1,11 +1,11 @@
-# LogKit 性能基准测试
+﻿# LoggerKit 性能基准测试
 
-本目录包含LogKit的性能基准测试。
+本目录包含LoggerKit的性能基准测试。
 
 ## 运行基准测试
 
 ```bash
-dart benchmark/log_kit_benchmark.dart
+dart benchmark/logger_kit_benchmark.dart
 ```
 
 ## 测试项目
