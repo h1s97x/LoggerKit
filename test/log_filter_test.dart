@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:log_kit/log_kit.dart';
+import 'package:logger_kit/logger_kit.dart';
 
 void main() {
   group('LevelFilter', () {
