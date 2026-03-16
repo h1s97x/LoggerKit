@@ -35,7 +35,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Run example
-        run: dart example/log_kit_example.dart
+        run: dart example/logger_kit_example.dart
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
