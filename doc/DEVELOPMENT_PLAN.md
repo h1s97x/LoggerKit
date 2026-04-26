@@ -1,523 +1,56 @@
-# LoggerKit 成熟化开发计划
+# LoggerKit 开发计划
 
-> 版本目标：v1.1.0
-> 主题：架构升级、命名空间隔离、Builder 模式
-> 原则：保持轻量化、向后兼容
-
-## 目录
-
-- [一、版本目标](#一版本目标)
-- [二、任务分解](#二任务分解)
-- [三、技术方案](#三技术方案)
-- [四、里程碑](#四里程碑)
-- [五、测试计划](#五测试计划)
-- [六、文档更新](#六文档更新)
+> 文档版本：v1.2
+> 更新日期：2025年1月
+> 核心原则：轻量化 + 零依赖 + 插件化
 
 ---
 
-## 一、版本目标
-
-### 1.1 核心目标
-
-| 目标 | 描述 | 优先级 |
-|------|------|--------|
-| Builder 模式 | 链式 API 配置 | P0 |
-| 命名空间隔离 | 按模块管理日志 | P0 |
-| 中间件/拦截器 | 统一日志增强 | P1 |
-| 结构化上下文 | context 字段支持 | P1 |
-
-### 1.2 约束条件
-
-- **向后兼容**：v1.x API 继续支持
-- **依赖不增**：核心仍为 0 依赖
-- **性能无损**：日志写入延迟 < 1ms
-- **Flutter 3.3+**：继续兼容
-
----
-
-## 二、任务分解
-
-### Phase 1: 核心架构重构
-
-#### Task 1.1: LoggerBuilder 实现
-
-```
-文件：lib/src/core/logger_builder.dart（新增）
-
-内容：
-- LoggerBuilder 类
-- 链式配置方法
-- build() 工厂方法
-
-方法：
-LoggerBuilder()
-  ..minLevel(LogLevel)
-  ..console(bool)
-  ..file({path, maxSize, maxCount})
-  ..remote({url, batchSize, interval})
-  ..context(LogContext)
-  ..privacyFields(List<String>)
-  ..build()
-```
-
-#### Task 1.2: LoggerManager 实现
-
-```
-文件：lib/src/core/logger_manager.dart（新增）
-
-内容：
-- 命名空间注册表
-- getNamespace(name) 方法
-- presetNamespaces 预设
-
-API：
-LoggerKit.namespace('network')  // 获取命名空间 logger
-LoggerKit.network               // 预设快捷方式
-```
-
-#### Task 1.3: LogInterceptor 接口
-
-```
-文件：lib/src/interceptors/log_interceptor.dart（新增）
-
-内容：
-- LogInterceptor 抽象类
-- intercept(record) 方法
-- order 属性（执行顺序）
-
-内置拦截器：
-- ContextInterceptor：注入上下文
-- PrivacyInterceptor：隐私过滤
-- TimingInterceptor：性能监控
-```
-
-#### Task 1.4: LogContext 结构
-
-```
-文件：lib/src/models/log_context.dart（新增）
-
-字段：
-- String? userId
-- String? sessionId  
-- String? traceId
-- String? deviceId
-- Map<String, dynamic> custom
-
-方法：
-- set(key, value)
-- get(key)
-- clear()
-- toMap()
-```
-
-### Phase 2: 功能增强
-
-#### Task 2.1: ConsoleWriter 完善
-
-```
-文件：lib/src/writers/console_writer.dart（新增）
-
-功能：
-- 重构 ConsoleWriter
-- 支持多级颜色
-- 支持输出流选择（stdout/stderr）
-```
-
-#### Task 2.2: PrivacyInterceptor 实现
-
-```
-文件：lib/src/interceptors/privacy_interceptor.dart（新增）
-
-功能：
-- 默认隐私字段列表
-- 递归过滤 Map
-- 自定义字段扩展
-
-默认过滤：
-['password', 'token', 'secret', 'apiKey', 'authorization', 'creditCard', 'ssn']
-```
-
-#### Task 2.3: ContextInterceptor 实现
-
-```
-文件：lib/src/interceptors/context_interceptor.dart（新增）
-
-功能：
-- 自动注入 LogContext
-- 支持运行时更新
-- 线程/isolate 安全
-```
-
-### Phase 3: API 演进
-
-#### Task 3.1: LoggerKit.init() 兼容
-
-```
-保持现有 API：
-LoggerKit.init(
-  minLevel: LogLevel.debug,
-  enableConsole: true,
-  filePath: './logs',
-);
-
-内部转换为 Builder 模式
-```
-
-#### Task 3.2: LoggerKit.builder() 新 API
-
-```
-新 API：
-LoggerKit.builder()
-  ..minLevel(LogLevel.info)
-  ..console()
-  ..file(path: './logs')
-  ..context(LogContext(userId: '123'))
-  ..build()
-```
-
-#### Task 3.3: 命名空间 API
-
-```
-// 获取命名空间
-final networkLogger = LoggerKit.namespace('network');
-
-// 预设命名空间
-LoggerKit.network.i('API called');
-LoggerKit.database.d('Query executed');
-LoggerKit.ui.d('Screen rendered');
-
-// 注册预设
-LoggerKit.registerNamespace('network', config: LogConfig(...));
-```
-
-### Phase 4: 测试覆盖
-
-#### Task 4.1: 单元测试
-
-```
-test/
-├── logger_builder_test.dart      # Builder 测试
-├── logger_manager_test.dart       # 命名空间测试
-├── log_context_test.dart          # 上下文测试
-├── privacy_interceptor_test.dart  # 隐私过滤测试
-└── context_interceptor_test.dart  # 上下文注入测试
-```
-
-#### Task 4.2: 集成测试
-
-```
-test/
-├── integration/
-│   ├── namespace_isolation_test.dart
-│   ├── interceptor_chain_test.dart
-│   └── backward_compat_test.dart  # 向后兼容
-```
-
-#### Task 4.3: 性能测试
-
-```
-benchmark/
-├── logger_kit_benchmark.dart      # 现有
-├── builder_benchmark.dart         # 新增
-└── interceptor_benchmark.dart     # 新增
-```
-
-### Phase 5: 文档更新
-
-#### Task 5.1: API 文档更新
-
-```
-doc/
-├── API.md              # 更新
-├── ARCHITECTURE.md      # 更新
-└── USAGE_GUIDE.md       # 更新
-```
-
-#### Task 5.2: 新功能文档
-
-```
-doc/
-├── BUILDER_GUIDE.md     # 新增
-├── NAMESPACE_GUIDE.md   # 新增
-├── INTERCEPTOR_GUIDE.md # 新增
-└── PRIVACY_GUIDE.md     # 新增
-```
-
----
-
-## 三、技术方案
-
-### 3.1 目录结构
-
-```
-lib/
-├── logger_kit.dart              # 主入口
-└── src/
-    ├── core/
-    │   ├── logger.dart           # 现有
-    │   ├── logger_kit.dart       # 现有
-    │   ├── logger_builder.dart   # 新增
-    │   └── logger_manager.dart   # 新增
-    ├── models/
-    │   ├── log_record.dart       # 现有
-    │   ├── log_level.dart        # 现有
-    │   ├── log_config.dart        # 现有
-    │   └── log_context.dart       # 新增
-    ├── interceptors/              # 新增目录
-    │   ├── log_interceptor.dart   # 新增
-    │   ├── privacy_interceptor.dart
-    │   └── context_interceptor.dart
-    ├── filters/
-    │   └── log_filter.dart        # 现有
-    ├── formatters/
-    │   └── log_formatter.dart     # 现有
-    └── writers/
-        ├── log_writer.dart        # 现有
-        ├── console_writer.dart    # 新增
-        ├── file_writer.dart       # 现有
-        └── remote_writer.dart     # 现有
-```
-
-### 3.2 核心类图
-
-```dart
-// LoggerBuilder
-class LoggerBuilder {
-  LoggerBuilder minLevel(LogLevel level);
-  LoggerBuilder console({bool enabled = true});
-  LoggerBuilder file({String? path, int? maxSize, int? maxCount});
-  LoggerBuilder remote({String? url, int? batchSize, Duration? interval});
-  LoggerBuilder context(LogContext context);
-  LoggerBuilder privacyFields(List<String> fields);
-  LoggerBuilder addInterceptor(LogInterceptor interceptor);
-  Logger build();
-}
-
-// LoggerManager
-class LoggerManager {
-  static final LoggerManager _instance = LoggerManager._();
-  factory LoggerManager() => _instance;
-  
-  Logger namespace(String name, {LogConfig? config});
-  Logger get network;
-  Logger get database;
-  Logger get ui;
-  void registerNamespace(String name, {LogConfig? config});
-}
-
-// LogInterceptor
-abstract class LogInterceptor {
-  LogRecord intercept(LogRecord record);
-  int get order => 0;
-}
-
-// LogContext
-class LogContext {
-  String? userId;
-  String? sessionId;
-  String? traceId;
-  String? deviceId;
-  Map<String, dynamic> custom = {};
-}
-```
-
-### 3.3 向后兼容
-
-```dart
-// 保留现有 init() 方法
-class LoggerKit {
-  static void init({
-    LogLevel minLevel = LogLevel.debug,
-    bool enableConsole = true,
-    bool enableFile = false,
-    bool enableRemote = false,
-    String? filePath,
-    String? remoteUrl,
-    int maxFileSize = 10 * 1024 * 1024,
-    int maxFileCount = 5,
-    bool includeTimestamp = true,
-    bool includeTag = true,
-    bool includeEmoji = true,
-    bool prettyPrint = true,
-  }) {
-    // 内部转换为 builder 模式
-    builder()
-      ..minLevel(minLevel)
-      ..console(enableConsole)
-      ..file(path: filePath, maxSize: maxFileSize, maxCount: maxFileCount)
-      ..remote(url: remoteUrl)
-      ..build();
-  }
-}
-```
-
----
-
-## 四、里程碑
-
-### Milestone 1: 核心框架 ✅ 2天
-
-- [ ] LoggerBuilder 实现
-- [ ] LoggerManager 实现
-- [ ] LogInterceptor 接口
-- [ ] LogContext 模型
-- [ ] 基础单元测试
-
-### Milestone 2: 功能实现 ✅ 2天
-
-- [ ] ConsoleWriter 重构
-- [ ] PrivacyInterceptor
-- [ ] ContextInterceptor
-- [ ] 集成测试
-- [ ] 性能测试
-
-### Milestone 3: API 完善 ✅ 1天
-
-- [ ] 向后兼容适配
-- [ ] 命名空间 API
-- [ ] 示例代码更新
-- [ ] Example 目录更新
-
-### Milestone 4: 文档与发布 ✅ 1天
-
-- [ ] API 文档更新
-- [ ] 新功能文档
-- [ ] CHANGELOG 更新
-- [ ] 版本发布准备
-
----
-
-## 五、测试计划
-
-### 5.1 单元测试
-
-| 测试文件 | 覆盖内容 | 目标覆盖率 |
-|----------|----------|-----------|
-| logger_builder_test.dart | Builder 链式调用、默认值、边界 | 90%+ |
-| logger_manager_test.dart | 命名空间注册、获取、隔离 | 90%+ |
-| log_context_test.dart | 字段操作、序列化 | 90%+ |
-| privacy_interceptor_test.dart | 字段过滤、递归过滤 | 95%+ |
-| context_interceptor_test.dart | 上下文注入、覆盖 | 90%+ |
-
-### 5.2 集成测试
-
-| 测试场景 | 测试内容 |
-|----------|----------|
-| namespace_isolation_test | 不同命名空间日志隔离 |
-| interceptor_chain_test | 拦截器链执行顺序 |
-| backward_compat_test | v1.x API 兼容 |
-
-### 5.3 性能基准
-
-```
-benchmark/
-├── baseline_v1.txt      # v1.x 性能数据
-├── baseline_v2.txt      # v2.x 性能数据
-└── comparison.py        # 对比脚本
-```
-
----
-
-## 六、文档更新
-
-### 6.1 需要更新的文件
-
-| 文件 | 更新内容 |
-|------|----------|
-| README.md | 新功能介绍、徽章更新 |
-| CHANGELOG.md | v1.1.0 变更记录 |
-| doc/API.md | 新增 API 文档 |
-| doc/ARCHITECTURE.md | 架构图更新 |
-| doc/USAGE_GUIDE.md | 新用法示例 |
-
-### 6.2 需要新增的文件
-
-| 文件 | 内容 |
+# v1.1.0 版本 ✅ 已完成
+
+## 完成时间
+2025年1月
+
+## 功能列表
+
+| 功能 | 说明 | 状态 |
+|------|------|------|
+| LoggerBuilder | 链式配置构建器 | ✅ |
+| LoggerManager | 命名空间管理 | ✅ |
+| LogInterceptor | 拦截器接口 | ✅ |
+| LogContext | 结构化上下文 | ✅ |
+| PrivacyInterceptor | 隐私过滤 | ✅ |
+| ContextInterceptor | 上下文注入 | ✅ |
+| ConsoleWriter | 控制台输出 | ✅ |
+| 向后兼容 | init() API 保持兼容 | ✅ |
+
+## 文档
+
+| 文档 | 状态 |
 |------|------|
-| doc/BUILDER_GUIDE.md | Builder 模式指南 |
-| doc/NAMESPACE_GUIDE.md | 命名空间使用指南 |
-| doc/INTERCEPTOR_GUIDE.md | 拦截器开发指南 |
-| doc/PRIVACY_GUIDE.md | 隐私保护指南 |
-
----
-
-## 附录：预估工作量
-
-| Phase | 任务数 | 预估时间 | 负责人 |
-|-------|--------|----------|--------|
-| Phase 1 | 4 | 2 天 | - |
-| Phase 2 | 3 | 2 天 | - |
-| Phase 3 | 3 | 1 天 | - |
-| Phase 4 | 3 | 1 天 | - |
-| Phase 5 | 2 | 1 天 | - |
-| **总计** | **15** | **7 天** | - |
-
----
-
-*计划制定时间：2025年1月*
-*计划版本：v1.0*
+| doc/BUILDER_GUIDE.md | ✅ |
+| doc/NAMESPACE_GUIDE.md | ✅ |
+| doc/INTERCEPTOR_GUIDE.md | ✅ |
+| doc/PRIVACY_GUIDE.md | ✅ |
+| doc/ARCHITECTURE.md | ✅ |
+| doc/API.md | ✅ |
 
 ---
 
 # v1.2.0 版本计划
 
-> 计划制定时间：2025年1月
-> 目标：Pretty Print 和代码美化
+> 目标：Pretty Print + 基础错误处理
+> 预估工作量：3-4 天
 
-## 一、目标
+## 一、设计原则
 
-提供类似 `logger` 包的 Pretty Print 功能，美化控制台输出，提升开发体验。
+1. **核心零依赖** - 不引入任何外部包
+2. **渐进增强** - 用户可选开启 Pretty Print
+3. **向后兼容** - 默认行为不变
 
 ## 二、功能列表
 
-### 2.1 Pretty Print (核心)
-
-```dart
-// 美化 JSON/Map 输出
-{
-  "user": {
-    "name": "John",
-    "email": "john@example.com"
-  }
-}
-
-// 长字符串自动换行
-// 复杂对象结构化展示
-// 堆栈跟踪美化
-```
-
-### 2.2 StackTrace 美化
-
-```dart
-// 原始堆栈
-StackTraceImpl(3): #0      Logger.d (logger.dart:45)
-                   #1      _MyWidget.build (my_widget.dart:23)
-
-# 美化后
-🌲 #3 root/logger.dart:45 Logger.d()
-  🌿 #2 root/my_widget.dart:23 MyWidget.build()
-```
-
-### 2.3 Terminal Color Support
-
-```dart
-// 自动检测终端支持
-// 支持 256 色和 True Color
-// 可配置颜色主题
-```
-
-### 2.4 自定义 Pretty Printer
-
-```dart
-class MyPrettyPrinter extends PrettyPrinter {
-  @override
-  String prettyJson(dynamic data) => customFormat(data);
-}
-```
-
-## 三、技术方案
-
-### 3.1 PrettyPrinter 类
+### 2.1 PrettyPrinter 抽象
 
 ```dart
 abstract class PrettyPrinter {
@@ -529,191 +62,389 @@ abstract class PrettyPrinter {
 }
 ```
 
-### 3.2 ConsoleWriter 集成
+### 2.2 DefaultPrettyPrinter 实现
+
+| 功能 | 说明 |
+|------|------|
+| 多行折叠 | 超过指定行数自动折叠 |
+| 堆栈美化 | 路径裁剪 + 相对路径 |
+| 对象格式化 | JSON/Map 缩进美化 |
+| ANSI 颜色 | 级别/标签颜色（可选）|
+
+### 2.3 ConsoleWriter 增强
 
 ```dart
 ConsoleWriter({
-  PrettyPrinter? prettyPrinter,
+  bool prettyPrint = false,
+  PrettyPrinter? printer,
   bool useColors = true,
   int maxLineLength = 120,
+  int maxExpandLines = 10,
 })
 ```
 
-### 3.3 Builder 集成
+### 2.4 Builder API
 
 ```dart
 LoggerKit.builder()
-  ..console(prettyPrint: true)
-  ..prettyPrinter(CustomPrettyPrinter())
+  ..console(prettyPrint: true, useColors: true)
   ..build();
+```
+
+### 2.5 基础错误处理
+
+| 策略 | 说明 | 使用场景 |
+|------|------|----------|
+| `ignore` | 静默忽略错误 | 生产环境默认 |
+| `logToFallback` | 记录到 fallback writer | 调试时 |
+| `throwException` | 抛出异常 | 开发时 |
+
+```dart
+ConsoleWriter(
+  errorStrategy: ErrorStrategy.logToFallback,
+  fallbackWriter: FileWriter(path: './errors.log'),
+)
+```
+
+## 三、技术方案
+
+### 3.1 目录结构
+
+```
+lib/
+├── src/
+│   ├── pretty/
+│   │   ├── pretty_printer.dart      # 抽象类
+│   │   ├── default_pretty_printer.dart  # 默认实现
+│   │   └── ansi_colors.dart         # ANSI 颜色工具
+│   └── writers/
+│       └── console_writer.dart       # 更新
+```
+
+### 3.2 错误处理接口
+
+```dart
+enum ErrorStrategy {
+  ignore,           // 静默忽略
+  logToFallback,   // 记录到 fallback
+  throwException,  // 抛出异常
+}
+
+abstract class LogWriter {
+  Future<void> write(LogRecord record, String formatted);
+  Future<void> flush();
+  
+  ErrorStrategy get errorStrategy;
+  LogWriter? get fallbackWriter;
+}
+```
+
+### 3.3 背压控制
+
+```dart
+// Writer 队列溢出策略
+enum OverflowStrategy {
+  dropOldest,   // 丢弃最旧的
+  dropNewest,   // 丢弃最新的
+  block,        // 阻塞等待
+}
+
+ConsoleWriter(
+  maxQueueSize: 1000,
+  overflowStrategy: OverflowStrategy.dropOldest,
+)
 ```
 
 ## 四、里程碑
 
-### Milestone 1: PrettyPrinter 核心 ⏳ 2天
-
-- [ ] `PrettyPrinter` 抽象类
-- [ ] `DefaultPrettyPrinter` 实现
-- [ ] JSON 美化
-- [ ] 列表/Map 美化
-
-### Milestone 2: StackTrace 美化 ⏳ 1天
-
-- [ ] 堆栈跟踪解析
-- [ ] 路径裁剪（移除项目根路径）
-- [ ] 相对路径显示
-
-### Milestone 3: 颜色支持 ⏳ 1天
-
-- [ ] Terminal Color 检测
-- [ ] 颜色主题配置
-- [ ] 渐进式降级（True Color → 256 → 无色）
-
-### Milestone 4: 集成与文档 ⏳ 1天
-
-- [ ] ConsoleWriter 集成
-- [ ] Builder API 完善
-- [ ] 文档更新
-- [ ] 示例代码
-
-## 五、预估工作量
-
-| Task | 预估时间 |
-|------|----------|
-| PrettyPrinter 核心 | 2 天 |
-| StackTrace 美化 | 1 天 |
-| 颜色支持 | 1 天 |
-| 集成与文档 | 1 天 |
-| **总计** | **5 天** |
+| Milestone | 任务 | 预估 |
+|-----------|------|------|
+| M1: PrettyPrinter | 抽象类 + 默认实现 | 1天 |
+| M2: StackTrace 美化 | 堆栈解析 + 路径裁剪 | 0.5天 |
+| M3: ANSI 颜色 | 颜色检测 + 主题 | 0.5天 |
+| M4: 错误处理 | 错误策略 + Fallback | 0.5天 |
+| M5: 测试文档 | 单元测试 + 文档 | 1天 |
 
 ---
 
 # v1.3.0 版本计划
 
-> 计划制定时间：2025年1月
-> 目标：模块拆分，轻量化可选依赖
+> 目标：模块拆分，Monorepo 结构
+> 预估工作量：4-5 天
 
-## 一、目标
+## 一、设计原则
 
-将 LoggerKit 拆分为多个可选模块，让用户按需引入，减少不必要的依赖。
+1. **零依赖核心** - `logger_kit_core` 不依赖任何外部包
+2. **按需引入** - 用户只引入需要的模块
+3. **聚合包** - `logger_kit` 聚合所有模块
 
-## 二、模块拆分方案
+## 二、模块结构
 
 ```
-logger_kit/
-├── logger_kit_core/        # 核心，无外部依赖
-│   ├── models/
-│   ├── filters/
-│   ├── formatters/
-│   └── core/
+packages/
+├── logger_kit/                    # 聚合包（默认）
+│   ├── pubspec.yaml               # 依赖所有子包
+│   └── lib/
+│       └── logger_kit.dart        # 导出所有
 │
-├── logger_kit_file/        # 文件输出（需要 path 包）
-│   └── writers/
+├── logger_kit_core/               # 核心（零依赖）
+│   ├── pubspec.yaml               # 无外部依赖
+│   └── lib/
+│       ├── models/                # LogRecord, LogLevel, LogConfig, LogContext
+│       ├── core/                  # Logger, LoggerKit, LoggerBuilder, LoggerManager
+│       ├── filters/               # LogFilter 接口
+│       ├── formatters/            # LogFormatter 接口
+│       └── interceptors/          # LogInterceptor, PrivacyInterceptor, ContextInterceptor
 │
-├── logger_kit_remote/      # 远程上报（需要 http 包）
-│   └── writers/
+├── logger_kit_console/            # 控制台输出
+│   ├── pubspec.yaml               # 无外部依赖
+│   └── lib/
+│       └── writers/
+│           └── console_writer.dart
 │
-└── logger_kit_flutter/    # Flutter 特有功能
-    └── ...
+├── logger_kit_file/               # 文件输出
+│   ├── pubspec.yaml               # 依赖: path
+│   └── lib/
+│       └── writers/
+│           └── file_writer.dart
+│
+├── logger_kit_remote/             # 远程上报
+│   ├── pubspec.yaml               # 依赖: http
+│   └── lib/
+│       └── writers/
+│           └── remote_writer.dart
+│
+└── logger_kit_pretty/            # Pretty Print（可选）
+    ├── pubspec.yaml               # 无外部依赖
+    └── lib/
+        └── pretty/
+            ├── pretty_printer.dart
+            └── default_pretty_printer.dart
 ```
 
-## 三、依赖结构
+## 三、依赖关系图
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      logger_kit                              │
+│                   (聚合包，默认)                              │
+└─────────────────────┬───────────────────────────────────────┘
+                      │ depends on
+        ┌─────────────┼─────────────┬─────────────┬─────────────┐
+        ▼             ▼             ▼             ▼             ▼
+┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐
+│   core     │ │  console  │ │   file    │ │  remote   │ │  pretty   │
+│ (零依赖)   │ │ (零依赖)   │ │ (需要path) │ │ (需要http) │ │ (零依赖)   │
+└───────────┘ └───────────┘ └───────────┘ └───────────┘ └───────────┘
+```
+
+## 四、用户使用方式
+
+### 方式 1：使用聚合包（推荐）
 
 ```yaml
-# logger_kit_core - 零依赖
 dependencies:
-  logger_kit_core:
-    path: packages/logger_kit_core
+  logger_kit: ^1.3.0
+```
 
-# logger_kit - 默认包含所有功能
-dependencies:
-  logger_kit:
-    path: packages/logger_kit
-  path: ^1.8.0
-  http: ^1.1.0
+```dart
+import 'package:logger_kit/logger_kit.dart';
+// 包含所有功能
+```
 
-# 用户可按需选择
+### 方式 2：按需引入
+
+```yaml
 dependencies:
   logger_kit_core: ^1.3.0
+  logger_kit_console: ^1.3.0
   logger_kit_file: ^1.3.0
 ```
 
-## 四、预估工作量
+```dart
+import 'package:logger_kit_core/logger_kit_core.dart';
+import 'package:logger_kit_console/writers/console_writer.dart';
+```
 
-| Task | 预估时间 |
-|------|----------|
-| 模块目录结构 | 0.5 天 |
-| 依赖迁移 | 1 天 |
-| 导出调整 | 0.5 天 |
-| 测试更新 | 1 天 |
-| 文档更新 | 1 天 |
-| **总计** | **5 天** |
+### 方式 3：仅核心
+
+```yaml
+dependencies:
+  logger_kit_core: ^1.3.0
+```
+
+```dart
+import 'package:logger_kit_core/logger_kit_core.dart';
+// 无任何输出 Writer，用户自己实现
+```
+
+## 五、技术细节
+
+### 5.1 Core 包导出
+
+```dart
+// logger_kit_core/lib/logger_kit_core.dart
+library;
+
+export 'models/models.dart';
+export 'core/core.dart';
+export 'filters/log_filter.dart';
+export 'formatters/log_formatter.dart';
+export 'interceptors/interceptors.dart';
+```
+
+### 5.2 聚合包
+
+```dart
+// logger_kit/lib/logger_kit.dart
+library logger_kit;
+
+export 'package:logger_kit_core/logger_kit_core.dart';
+export 'package:logger_kit_console/console_writer.dart';
+export 'package:logger_kit_file/file_writer.dart';
+export 'package:logger_kit_remote/remote_writer.dart';
+export 'package:logger_kit_pretty/pretty_printer.dart';
+```
+
+## 六、里程碑
+
+| Milestone | 任务 | 预估 |
+|-----------|------|------|
+| M1: 结构搭建 | Monorepo 目录结构 | 0.5天 |
+| M2: Core 拆分 | 提取核心代码 | 1天 |
+| M3: Writer 拆分 | console/file/remote 分离 | 1天 |
+| M4: Pretty 拆分 | 提取 pretty 模块 | 0.5天 |
+| M5: 聚合包 | logger_kit 聚合 | 0.5天 |
+| M6: 测试 | 迁移测试 | 1天 |
+| M7: 文档 | 更新文档 | 0.5天 |
 
 ---
 
 # v2.0.0 版本计划
 
-> 计划制定时间：2025年1月
-> 目标：破坏性变更，API 优化
+> 目标：破坏性变更 + 企业级插件
+> 预估工作量：待定
 
-## 一、目标
+## 一、设计原则
 
-清理废弃 API，优化设计，准备长期维护版本。
+1. **清理废弃 API** - 删除 v1.x 的 deprecated 接口
+2. **不可变设计** - LogRecord 改为不可变
+3. **异步优先** - 所有操作异步化
 
 ## 二、破坏性变更
 
-### 2.1 移除废弃 API
+### 2.1 移除的 API
 
-| 废弃 API | 替代方案 | 废弃版本 |
-|----------|----------|----------|
-| `init()` | `builder()` | v1.1.0 |
-| `LogConfig` 构造函数 | `LoggerBuilder` | v1.1.0 |
-| `LogWriter.write()` | 异步 `writeAsync()` | v1.2.0 |
+| API | 替代 | 废弃版本 |
+|-----|------|----------|
+| `init()` | `LoggerBuilder` | v1.1 |
+| `LogConfig()` | `LoggerBuilder` | v1.1 |
+| `LogWriter.write()` | `LogWriter.writeAsync()` | v1.2 |
 
 ### 2.2 类型变更
 
 ```dart
-// LogLevel 枚举优化
-enum LogLevel {
-  trace,   // 新增，比 debug 更细粒度
-  debug,
-  info,
-  warn,
-  error,
-  fatal,
-}
-
 // LogRecord 不可变设计
 @immutable
 class LogRecord {
   final LogLevel level;
   final String message;
   final DateTime timestamp;
-  // ...
+  final String? tag;
+  final Object? error;
+  final StackTrace? stackTrace;
+  final Map<String, dynamic>? data;
+  final LogContext? context;
+}
+
+// LogLevel 增加 trace
+enum LogLevel {
+  trace,   // 比 debug 更细粒度
+  debug,
+  info,
+  warn,
+  error,
+  fatal,
 }
 ```
 
 ### 2.3 异步优先
 
 ```dart
-// 全部改为异步
-Future<void> Logger.log(LogRecord record);
-Future<void> LogWriter.writeAsync(LogRecord record);
-Future<void> LoggerKit.closeAsync();
+// 所有操作异步化
+abstract class Logger {
+  Future<void> log(LogRecord record);
+  Future<void> debug(String message, {String? tag, Map<String, dynamic>? data});
+  Future<void> info(String message, {String? tag, Map<String, dynamic>? data});
+  Future<void> close();
+}
 ```
 
-## 三、预估工作量
+## 三、插件生态（可选）
 
-| Task | 预估时间 |
-|------|----------|
-| API 重构 | 2 天 |
-| 迁移脚本 | 1 天 |
-| 测试更新 | 2 天 |
-| 文档更新 | 1 天 |
-| **总计** | **6 天** |
+### 3.1 logger_kit_compliance
+
+企业级合规插件
+
+```dart
+// GDPR 合规
+class ComplianceInterceptor extends LogInterceptor {
+  final RetentionPolicy retention;
+  final List<String> piiFields;
+  final bool enableAuditLog;
+}
+
+// 日志留存策略
+enum RetentionPolicy {
+  days7,
+  days30,
+  days90,
+  forever,
+}
+```
+
+### 3.2 logger_kit_i18n
+
+国际化支持
+
+```dart
+class I18nInterceptor extends LogInterceptor {
+  final Map<String, String> translations;
+  final String locale;
+}
+```
+
+## 四、里程碑
+
+| Milestone | 任务 | 预估 |
+|-----------|------|------|
+| M1 | API 重构 | 2天 |
+| M2 | 不可变设计 | 1天 |
+| M3 | 异步化 | 1天 |
+| M4 | 迁移指南 | 1天 |
+| M5 | 测试更新 | 2天 |
 
 ---
 
-*文档版本历史*
-- v1.0: 初始计划 (2025年1月)
-- v1.1: v1.2.0+ 计划添加
+# 附录
+
+## 版本依赖关系
+
+| 版本 | 核心依赖 | 可选依赖 |
+|------|----------|----------|
+| v1.1 | path, http | - |
+| v1.2 | path, http | - |
+| v1.3 | path, http | - |
+| v2.0 | 无 | logger_kit_compliance, logger_kit_i18n |
+
+## 文档更新记录
+
+| 版本 | 更新内容 |
+|------|----------|
+| v1.0 | 初始计划 |
+| v1.1 | 添加 v1.2.0+ 计划 |
+| v1.2 | 采纳优化方案，重构计划结构 |
+
+---
+
+*最后更新：2025年1月*
