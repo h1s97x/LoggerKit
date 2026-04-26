@@ -3,6 +3,7 @@ import 'dart:io';
 import '../models/log_record.dart';
 import '../pretty/pretty_printer.dart';
 import '../pretty/default_pretty_printer.dart';
+import '../pretty/simple_pretty_printer.dart';
 import '../strategy/error_strategy.dart';
 import 'log_writer.dart';
 
@@ -18,8 +19,8 @@ class ConsoleWriter implements LogWriter {
   /// Create a new ConsoleWriter
   ///
   /// [prettyPrinter] - Optional pretty printer for formatted output.
-  ///                    If not provided, uses [DefaultPrettyPrinter] with default settings.
-  ///                    Pass [SimplePrettyPrinter] for plain output.
+  ///                   If not provided, uses [DefaultPrettyPrinter] with default settings.
+  ///                   Pass [SimplePrettyPrinter] for plain output.
   /// [errorStrategy] - Strategy for handling write errors. Defaults to [ErrorStrategy.ignore].
   /// [output] - Output stream: 'stdout' (default) or 'stderr'.
   /// [useColor] - Whether to use ANSI colors. Auto-detected if not provided.
@@ -46,11 +47,10 @@ class ConsoleWriter implements LogWriter {
   }
 
   @override
-  void write(LogRecord record, String formatted) {
+  Future<void> write(LogRecord record, String formatted) async {
     try {
-      final output = prettyPrinter != null
-          ? prettyPrinter!.print(record)
-          : formatted;
+      final output =
+          prettyPrinter != null ? prettyPrinter!.format(record) : formatted;
 
       if (_output == 'stderr' || record.level.value >= 3) {
         stderr.writeln(output);
@@ -63,7 +63,7 @@ class ConsoleWriter implements LogWriter {
   }
 
   @override
-  void flush() {
+  Future<void> flush() async {
     // Console output is synchronous, no flush needed
   }
 
@@ -82,36 +82,7 @@ class ConsoleWriter implements LogWriter {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     // Console writer doesn't need cleanup
-  }
-}
-
-/// A simple pretty printer that outputs plain text without colors
-class SimplePrettyPrinter implements PrettyPrinter {
-  @override
-  String print(LogRecord record) {
-    final buffer = StringBuffer();
-    buffer.write('[${record.level.name.toUpperCase()}] ');
-    buffer.write(record.message);
-
-    if (record.tag != null) {
-      buffer.write(' [$record.tag]');
-    }
-
-    if (record.data != null) {
-      buffer.write(' ${record.data}');
-    }
-
-    if (record.error != null) {
-      buffer.writeln();
-      buffer.write('Error: ${record.error}');
-      if (record.stackTrace != null) {
-        buffer.writeln();
-        buffer.write(record.stackTrace);
-      }
-    }
-
-    return buffer.toString();
   }
 }

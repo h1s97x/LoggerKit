@@ -6,6 +6,7 @@ import '../formatters/log_formatter.dart';
 import '../writers/log_writer.dart';
 import '../writers/file_writer.dart';
 import '../writers/remote_writer.dart';
+import '../writers/console_writer.dart';
 import '../filters/log_filter.dart';
 import '../interceptors/log_interceptor.dart';
 import '../pretty/pretty_printer.dart';

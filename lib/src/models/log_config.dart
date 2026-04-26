@@ -63,6 +63,12 @@ class LogConfig {
   /// Pretty print log output
   final bool prettyPrint;
 
+  /// Error handling strategy
+  final ErrorStrategy errorStrategy;
+
+  /// Overflow handling strategy
+  final OverflowStrategy overflowStrategy;
+
   /// Create a copy of this config with some fields replaced.
   ///
   /// Example:

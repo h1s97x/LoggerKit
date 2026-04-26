@@ -19,6 +19,7 @@
 ///   ..overflowStrategy(OverflowStrategy.dropOldest)
 ///   ..build();
 /// ```
+// ignore_for_file: unnecessary_library_name
 library logger_kit.strategy;
 
 export 'error_strategy.dart';

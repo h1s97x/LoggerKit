@@ -15,6 +15,7 @@ class LogRecord {
   /// - [error]: Optional error object
   /// - [stackTrace]: Optional stack trace
   /// - [data]: Optional additional data
+  /// - [context]: Optional context information
   LogRecord({
     required this.level,
     required this.message,
@@ -23,6 +24,7 @@ class LogRecord {
     this.error,
     this.stackTrace,
     this.data,
+    this.context,
   }) : timestamp = timestamp ?? DateTime.now();
 
   /// Create a [LogRecord] from JSON.
@@ -62,6 +64,9 @@ class LogRecord {
   /// Optional additional data
   final Map<String, dynamic>? data;
 
+  /// Optional context information
+  final Map<String, dynamic>? context;
+
   /// Create a copy of this [LogRecord] with optional field overrides.
   ///
   /// This is useful for interceptors that need to modify records.
@@ -81,10 +86,12 @@ class LogRecord {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? data,
+    Map<String, dynamic>? context,
     bool clearTag = false,
     bool clearError = false,
     bool clearStackTrace = false,
     bool clearData = false,
+    bool clearContext = false,
   }) {
     return LogRecord(
       level: level ?? this.level,
@@ -94,6 +101,7 @@ class LogRecord {
       error: clearError ? null : (error ?? this.error),
       stackTrace: clearStackTrace ? null : (stackTrace ?? this.stackTrace),
       data: clearData ? null : (data ?? this.data),
+      context: clearContext ? null : (context ?? this.context),
     );
   }
 

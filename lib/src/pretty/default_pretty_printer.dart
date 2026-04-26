@@ -73,10 +73,6 @@ class DefaultPrettyPrinter implements PrettyPrinter {
 
     // Message
     var message = record.message.toString();
-    if (record.context != null && record.context!.isNotEmpty) {
-      message = '[${record.context}] $message';
-    }
-
     buffer.writeln(message);
 
     // Data (if present)
@@ -120,6 +116,7 @@ class DefaultPrettyPrinter implements PrettyPrinter {
 
     buffer.writeln(prefix);
 
+    final indent = ' ' * _config.stackTraceIndent;
     final maxLines = lines.length > _config.maxStackTraceLines
         ? _config.maxStackTraceLines
         : lines.length;
@@ -129,7 +126,6 @@ class DefaultPrettyPrinter implements PrettyPrinter {
       if (line.isEmpty) continue;
 
       // Format: #X <file>:<line> in <function>
-      final indent = ' ' * _config.stackTraceIndent;
       if (useColors) {
         buffer.writeln(
           AnsiColor.wrap('$indent$line', AnsiColor.dim),
@@ -265,13 +261,13 @@ class DefaultPrettyPrinter implements PrettyPrinter {
 class SimplePrettyPrinter implements PrettyPrinter {
   const SimplePrettyPrinter();
 
-  bool _useColors = false;
+  @override
+  bool get useColors => false;
 
   @override
-  bool get useColors => _useColors;
-
-  @override
-  set useColors(bool value) => _useColors = value;
+  set useColors(bool value) {
+    // No-op for SimplePrettyPrinter
+  }
 
   @override
   int get maxLineWidth => 80;

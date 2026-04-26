@@ -25,10 +25,10 @@ abstract class LogWriter {
   }
 }
 
-/// Console log writer.
+/// Simple console log writer without pretty printing.
 ///
-/// Writes log records to standard output using print().
-class ConsoleWriter implements LogWriter {
+/// For pretty printed output, use [ConsoleWriter] from 'console_writer.dart'.
+class SimpleConsoleWriter implements LogWriter {
   @override
   Future<void> write(LogRecord record, String formatted) async {
     // ignore: avoid_print
