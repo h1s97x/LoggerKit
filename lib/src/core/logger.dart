@@ -8,6 +8,9 @@ import '../writers/file_writer.dart';
 import '../writers/remote_writer.dart';
 import '../filters/log_filter.dart';
 import '../interceptors/log_interceptor.dart';
+import '../pretty/pretty_printer.dart';
+import '../strategy/error_strategy.dart';
+import '../strategy/overflow_strategy.dart';
 
 /// Logger instance for recording logs.
 ///
@@ -42,12 +45,19 @@ class Logger {
   /// - [config]: The [LogConfig] for this logger
   /// - [formatter]: Optional custom [LogFormatter] (defaults to [ColoredFormatter])
   /// - [namespace]: Optional namespace for this logger
+  /// - [errorStrategy]: Strategy for handling writer errors (defaults to [ErrorStrategy.ignore])
+  /// - [overflowStrategy]: Strategy for handling queue overflow (defaults to [OverflowStrategy.dropOldest])
+  /// - [prettyPrinter]: Pretty printer for console output (defaults to null, disabled)
   Logger({
     required this.config,
     LogFormatter? formatter,
     String? namespace,
+    this.errorStrategy = ErrorStrategy.ignore,
+    this.overflowStrategy = OverflowStrategy.dropOldest,
+    PrettyPrinter? prettyPrinter,
   })  : _formatter = formatter ?? ColoredFormatter(),
-        _namespace = namespace {
+        _namespace = namespace,
+        _prettyPrinter = prettyPrinter {
     _initWriters();
     _initFilters();
   }
@@ -58,6 +68,15 @@ class Logger {
   /// The namespace for this logger
   final String? _namespace;
 
+  /// The error strategy
+  final ErrorStrategy errorStrategy;
+
+  /// The overflow strategy
+  final OverflowStrategy overflowStrategy;
+
+  /// The pretty printer (may be null)
+  final PrettyPrinter? _prettyPrinter;
+
   final List<LogWriter> _writers = [];
   final List<LogFilter> _filters = [];
   final List<LogInterceptor> _interceptors = [];
@@ -65,7 +84,7 @@ class Logger {
 
   void _initWriters() {
     if (config.enableConsole) {
-      _writers.add(ConsoleWriter());
+      _writers.add(ConsoleWriter(prettyPrinter: _prettyPrinter));
     }
 
     if (config.enableFile && config.filePath != null) {
@@ -127,10 +146,64 @@ class Logger {
     // Format
     final formatted = _formatter.format(record, config);
 
-    // Write to all destinations
-    await Future.wait(
-      _writers.map((writer) => writer.write(record, formatted)),
-    );
+    // Write to all destinations with error handling
+    await _writeWithErrorHandling(record, formatted);
+  }
+
+  /// Writes to all writers with error handling based on [ErrorStrategy].
+  Future<void> _writeWithErrorHandling(
+    LogRecord record,
+    String formatted,
+  ) async {
+    final errors = <Object>[];
+
+    for (final writer in _writers) {
+      try {
+        await writer.write(record, formatted);
+      } catch (e, st) {
+        errors.add(e);
+
+        switch (config.errorStrategy) {
+          case ErrorStrategy.ignore:
+            // Silently ignore errors
+            break;
+          case ErrorStrategy.logToFallback:
+            // Log to console as fallback
+            _logFallbackError(record, e, st);
+            break;
+          case ErrorStrategy.throwException:
+            // Rethrow if any writer fails
+            rethrow;
+        }
+      }
+    }
+
+    // If all writers failed and strategy is not throwException, throw aggregated error
+    if (errors.isNotEmpty &&
+        errors.length == _writers.length &&
+        config.errorStrategy != ErrorStrategy.throwException) {
+      throw LoggerException(
+        'All ${_writers.length} writers failed',
+        errors: errors,
+      );
+    }
+  }
+
+  /// Logs error to console as fallback when writer fails.
+  void _logFallbackError(
+    LogRecord record,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    try {
+      // Use stderr for fallback errors
+      // ignore: avoid_print
+      print(
+        '\x1B[31m[FALLBACK ERROR]\x1B[0m Failed to write log: $error',
+      );
+    } catch (_) {
+      // Last resort: ignore
+    }
   }
 
   bool _shouldLog(LogRecord record) {

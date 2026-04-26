@@ -9,6 +9,31 @@
 
 ## English
 
+### [1.2.0] - 2026-03-21
+
+#### Added
+- **PrettyPrinter** - Abstract interface for log output beautification
+- **DefaultPrettyPrinter** - Default implementation with stack trace formatting and multi-line folding
+- **AnsiColor** - ANSI color codes for terminal output
+- **ErrorStrategy** - Error handling strategies (ignore, logToFallback, throwException)
+- **OverflowStrategy** - Queue overflow handling (dropOldest, dropNewest, block)
+- **LoggerException** - Exception thrown when all writers fail
+- **ConsoleWriter** - Enhanced console output with PrettyPrinter support
+
+#### Changed
+- **Enhanced ConsoleWriter** - Now supports custom PrettyPrinter
+- **Enhanced LoggerBuilder** - Added prettyPrint(), errorStrategy(), overflowStrategy() methods
+- **Enhanced Logger** - Error handling with configurable strategies
+- **Enhanced LogConfig** - Added prettyPrinter, errorStrategy, overflowStrategy fields
+
+#### Improved
+- Better error handling with fallback mechanisms
+- Multi-line log folding with expand/collapse hints
+- Stack trace beautification
+- Improved console output formatting
+
+---
+
 ### [1.1.0] - 2026-03-20
 
 #### Added

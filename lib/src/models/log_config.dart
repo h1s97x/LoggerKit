@@ -1,3 +1,5 @@
+import '../strategy/error_strategy.dart';
+import '../strategy/overflow_strategy.dart';
 import 'log_level.dart';
 
 /// Configuration for logging.
@@ -21,6 +23,8 @@ class LogConfig {
     this.includeTag = true,
     this.includeEmoji = true,
     this.prettyPrint = true,
+    this.errorStrategy = ErrorStrategy.logToFallback,
+    this.overflowStrategy = OverflowStrategy.dropOldest,
   });
 
   /// Minimum log level to record
@@ -78,6 +82,8 @@ class LogConfig {
     bool? includeTag,
     bool? includeEmoji,
     bool? prettyPrint,
+    ErrorStrategy? errorStrategy,
+    OverflowStrategy? overflowStrategy,
   }) {
     return LogConfig(
       minLevel: minLevel ?? this.minLevel,
@@ -92,6 +98,8 @@ class LogConfig {
       includeTag: includeTag ?? this.includeTag,
       includeEmoji: includeEmoji ?? this.includeEmoji,
       prettyPrint: prettyPrint ?? this.prettyPrint,
+      errorStrategy: errorStrategy ?? this.errorStrategy,
+      overflowStrategy: overflowStrategy ?? this.overflowStrategy,
     );
   }
 }

@@ -83,4 +83,11 @@ export 'src/interceptors/interceptors.dart';
 // Formatter, Writer, Filter exports
 export 'src/formatters/log_formatter.dart';
 export 'src/writers/log_writer.dart';
+export 'src/writers/console_writer.dart';
 export 'src/filters/log_filter.dart';
+
+// Pretty print exports
+export 'src/pretty/pretty.dart';
+
+// Strategy exports
+export 'src/strategy/strategy.dart';

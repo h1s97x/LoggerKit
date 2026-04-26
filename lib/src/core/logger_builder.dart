@@ -2,6 +2,9 @@ import '../models/log_level.dart';
 import '../models/log_config.dart';
 import '../models/log_context.dart';
 import '../interceptors/log_interceptor.dart';
+import '../pretty/pretty_printer.dart';
+import '../strategy/error_strategy.dart';
+import '../strategy/overflow_strategy.dart';
 import 'logger.dart';
 import 'logger_kit.dart';
 
@@ -49,6 +52,9 @@ class LoggerBuilder {
   bool _prettyPrint = true;
   LogContext? _context;
   final List<LogInterceptor> _interceptors = [];
+  PrettyPrinter? _prettyPrinter;
+  ErrorStrategy _errorStrategy = ErrorStrategy.ignore;
+  OverflowStrategy _overflowStrategy = OverflowStrategy.dropOldest;
 
   // Reserved for future use (Remote logging configuration)
   // ignore: unused_field
@@ -200,6 +206,40 @@ class LoggerBuilder {
   /// Add multiple interceptors.
   LoggerBuilder addInterceptors(List<LogInterceptor> interceptors) {
     _interceptors.addAll(interceptors);
+    return this;
+  }
+
+  /// Set a custom pretty printer for console output.
+  ///
+  /// If not set, [DefaultPrettyPrinter] is used when prettyPrint is enabled.
+  ///
+  /// ```dart
+  /// ..prettyPrinter(MyCustomPrettyPrinter())
+  /// ```
+  LoggerBuilder prettyPrinter(PrettyPrinter printer) {
+    _prettyPrinter = printer;
+    return this;
+  }
+
+  /// Set error handling strategy.
+  ///
+  /// Controls how errors during log writing are handled.
+  ///
+  /// ```dart
+  /// ..errorStrategy(ErrorStrategy.logToFallback)
+  /// ```
+  LoggerBuilder errorStrategy(ErrorStrategy strategy) {
+    _errorStrategy = strategy;
+    return this;
+  }
+
+  /// Set overflow strategy for queue when it exceeds max size.
+  ///
+  /// ```dart
+  /// ..overflowStrategy(OverflowStrategy.dropOldest)
+  /// ```
+  LoggerBuilder overflowStrategy(OverflowStrategy strategy) {
+    _overflowStrategy = strategy;
     return this;
   }
 
