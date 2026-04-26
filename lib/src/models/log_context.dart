@@ -8,22 +8,25 @@
 ///
 /// ```dart
 /// // Set global context
-/// LoggerKit.setContext(LogContext(
+/// LogContext.current = LogContext(
 ///   userId: 'user_123',
 ///   sessionId: 'session_abc',
 ///   traceId: 'trace_xyz',
-/// ));
+/// );
 ///
 /// // Add custom fields
-/// LoggerKit.context.set('requestId', 'req_456');
+/// LogContext.current.set('requestId', 'req_456');
 ///
 /// // Context is automatically included in all logs
 /// LoggerKit.i('User action');  // Includes context in log record
 /// ```
 class LogContext {
-  /// Create a new [LogContext].
+  /// The current global log context.
   ///
-  /// All parameters are optional and can be set later.
+  /// Set this to attach context to all subsequent log records.
+  static LogContext? current;
+
+  /// Create a new [LogContext].
   LogContext({
     this.userId,
     this.sessionId,
