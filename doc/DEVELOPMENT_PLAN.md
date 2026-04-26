@@ -456,3 +456,264 @@ benchmark/
 
 *计划制定时间：2025年1月*
 *计划版本：v1.0*
+
+---
+
+# v1.2.0 版本计划
+
+> 计划制定时间：2025年1月
+> 目标：Pretty Print 和代码美化
+
+## 一、目标
+
+提供类似 `logger` 包的 Pretty Print 功能，美化控制台输出，提升开发体验。
+
+## 二、功能列表
+
+### 2.1 Pretty Print (核心)
+
+```dart
+// 美化 JSON/Map 输出
+{
+  "user": {
+    "name": "John",
+    "email": "john@example.com"
+  }
+}
+
+// 长字符串自动换行
+// 复杂对象结构化展示
+// 堆栈跟踪美化
+```
+
+### 2.2 StackTrace 美化
+
+```dart
+// 原始堆栈
+StackTraceImpl(3): #0      Logger.d (logger.dart:45)
+                   #1      _MyWidget.build (my_widget.dart:23)
+
+# 美化后
+🌲 #3 root/logger.dart:45 Logger.d()
+  🌿 #2 root/my_widget.dart:23 MyWidget.build()
+```
+
+### 2.3 Terminal Color Support
+
+```dart
+// 自动检测终端支持
+// 支持 256 色和 True Color
+// 可配置颜色主题
+```
+
+### 2.4 自定义 Pretty Printer
+
+```dart
+class MyPrettyPrinter extends PrettyPrinter {
+  @override
+  String prettyJson(dynamic data) => customFormat(data);
+}
+```
+
+## 三、技术方案
+
+### 3.1 PrettyPrinter 类
+
+```dart
+abstract class PrettyPrinter {
+  String prettyPrint(dynamic data);
+  String prettyJson(Map<String, dynamic> json);
+  String prettyList(List<dynamic> list);
+  String prettyStackTrace(StackTrace trace);
+  String prettyError(Object error, StackTrace? stackTrace);
+}
+```
+
+### 3.2 ConsoleWriter 集成
+
+```dart
+ConsoleWriter({
+  PrettyPrinter? prettyPrinter,
+  bool useColors = true,
+  int maxLineLength = 120,
+})
+```
+
+### 3.3 Builder 集成
+
+```dart
+LoggerKit.builder()
+  ..console(prettyPrint: true)
+  ..prettyPrinter(CustomPrettyPrinter())
+  ..build();
+```
+
+## 四、里程碑
+
+### Milestone 1: PrettyPrinter 核心 ⏳ 2天
+
+- [ ] `PrettyPrinter` 抽象类
+- [ ] `DefaultPrettyPrinter` 实现
+- [ ] JSON 美化
+- [ ] 列表/Map 美化
+
+### Milestone 2: StackTrace 美化 ⏳ 1天
+
+- [ ] 堆栈跟踪解析
+- [ ] 路径裁剪（移除项目根路径）
+- [ ] 相对路径显示
+
+### Milestone 3: 颜色支持 ⏳ 1天
+
+- [ ] Terminal Color 检测
+- [ ] 颜色主题配置
+- [ ] 渐进式降级（True Color → 256 → 无色）
+
+### Milestone 4: 集成与文档 ⏳ 1天
+
+- [ ] ConsoleWriter 集成
+- [ ] Builder API 完善
+- [ ] 文档更新
+- [ ] 示例代码
+
+## 五、预估工作量
+
+| Task | 预估时间 |
+|------|----------|
+| PrettyPrinter 核心 | 2 天 |
+| StackTrace 美化 | 1 天 |
+| 颜色支持 | 1 天 |
+| 集成与文档 | 1 天 |
+| **总计** | **5 天** |
+
+---
+
+# v1.3.0 版本计划
+
+> 计划制定时间：2025年1月
+> 目标：模块拆分，轻量化可选依赖
+
+## 一、目标
+
+将 LoggerKit 拆分为多个可选模块，让用户按需引入，减少不必要的依赖。
+
+## 二、模块拆分方案
+
+```
+logger_kit/
+├── logger_kit_core/        # 核心，无外部依赖
+│   ├── models/
+│   ├── filters/
+│   ├── formatters/
+│   └── core/
+│
+├── logger_kit_file/        # 文件输出（需要 path 包）
+│   └── writers/
+│
+├── logger_kit_remote/      # 远程上报（需要 http 包）
+│   └── writers/
+│
+└── logger_kit_flutter/    # Flutter 特有功能
+    └── ...
+```
+
+## 三、依赖结构
+
+```yaml
+# logger_kit_core - 零依赖
+dependencies:
+  logger_kit_core:
+    path: packages/logger_kit_core
+
+# logger_kit - 默认包含所有功能
+dependencies:
+  logger_kit:
+    path: packages/logger_kit
+  path: ^1.8.0
+  http: ^1.1.0
+
+# 用户可按需选择
+dependencies:
+  logger_kit_core: ^1.3.0
+  logger_kit_file: ^1.3.0
+```
+
+## 四、预估工作量
+
+| Task | 预估时间 |
+|------|----------|
+| 模块目录结构 | 0.5 天 |
+| 依赖迁移 | 1 天 |
+| 导出调整 | 0.5 天 |
+| 测试更新 | 1 天 |
+| 文档更新 | 1 天 |
+| **总计** | **5 天** |
+
+---
+
+# v2.0.0 版本计划
+
+> 计划制定时间：2025年1月
+> 目标：破坏性变更，API 优化
+
+## 一、目标
+
+清理废弃 API，优化设计，准备长期维护版本。
+
+## 二、破坏性变更
+
+### 2.1 移除废弃 API
+
+| 废弃 API | 替代方案 | 废弃版本 |
+|----------|----------|----------|
+| `init()` | `builder()` | v1.1.0 |
+| `LogConfig` 构造函数 | `LoggerBuilder` | v1.1.0 |
+| `LogWriter.write()` | 异步 `writeAsync()` | v1.2.0 |
+
+### 2.2 类型变更
+
+```dart
+// LogLevel 枚举优化
+enum LogLevel {
+  trace,   // 新增，比 debug 更细粒度
+  debug,
+  info,
+  warn,
+  error,
+  fatal,
+}
+
+// LogRecord 不可变设计
+@immutable
+class LogRecord {
+  final LogLevel level;
+  final String message;
+  final DateTime timestamp;
+  // ...
+}
+```
+
+### 2.3 异步优先
+
+```dart
+// 全部改为异步
+Future<void> Logger.log(LogRecord record);
+Future<void> LogWriter.writeAsync(LogRecord record);
+Future<void> LoggerKit.closeAsync();
+```
+
+## 三、预估工作量
+
+| Task | 预估时间 |
+|------|----------|
+| API 重构 | 2 天 |
+| 迁移脚本 | 1 天 |
+| 测试更新 | 2 天 |
+| 文档更新 | 1 天 |
+| **总计** | **6 天** |
+
+---
+
+*文档版本历史*
+- v1.0: 初始计划 (2025年1月)
+- v1.1: v1.2.0+ 计划添加
