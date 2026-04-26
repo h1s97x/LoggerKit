@@ -1,27 +1,44 @@
-/// 日志级别
+/// Log level enumeration.
+///
+/// Defines the severity levels for log messages. Each level has a numeric value
+/// for comparison, a name, and an emoji for visual representation.
+///
+/// The levels in order of severity are:
+/// - [debug] - Detailed diagnostic information
+/// - [info] - General informational messages
+/// - [warning] - Warning messages for potentially problematic situations
+/// - [error] - Error messages for error conditions
+/// - [fatal] - Fatal messages for severe errors
 enum LogLevel {
-  /// 调试信息 - 详细的调试信息
+  /// Detailed diagnostic information
   debug(0, 'DEBUG', '🔍'),
 
-  /// 信息 - 一般信息
+  /// General informational messages
   info(1, 'INFO', 'ℹ️'),
 
-  /// 警告 - 警告信息
+  /// Warning messages for potentially problematic situations
   warning(2, 'WARNING', '⚠️'),
 
-  /// 错误 - 错误信息
+  /// Error messages for error conditions
   error(3, 'ERROR', '❌'),
 
-  /// 致命错误 - 严重错误
+  /// Fatal messages for severe errors
   fatal(4, 'FATAL', '💀');
 
   const LogLevel(this.value, this.name, this.emoji);
 
+  /// The numeric value of this level (used for comparison)
   final int value;
+
+  /// The name of this level
   final String name;
+
+  /// The emoji representation of this level
   final String emoji;
 
-  /// 是否应该记录此级别的日志
+  /// Check if this level should be logged given a minimum level.
+  ///
+  /// Returns true if this level's value is greater than or equal to [minLevel]'s value.
   bool shouldLog(LogLevel minLevel) {
     return value >= minLevel.value;
   }

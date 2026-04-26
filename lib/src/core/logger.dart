@@ -7,20 +7,60 @@ import '../writers/log_writer.dart';
 import '../writers/file_writer.dart';
 import '../writers/remote_writer.dart';
 import '../filters/log_filter.dart';
+import '../interceptors/log_interceptor.dart';
 
-/// 日志记录器
+/// Logger instance for recording logs.
+///
+/// [Logger] is responsible for formatting and writing log records to configured
+/// destinations (console, file, remote). It applies filters to determine which
+/// logs should be recorded, and interceptors to modify records before writing.
+///
+/// Typically, you should use [LoggerKit] static methods instead of creating
+/// [Logger] instances directly.
+///
+/// ## Usage
+///
+/// ```dart
+/// final logger = Logger(config: LogConfig());
+/// logger.d('Debug message');
+/// logger.i('Info message');
+/// logger.e('Error message', error: exception);
+/// ```
+///
+/// ## Namespace Usage
+///
+/// Loggers can be created with a namespace for modular logging:
+///
+/// ```dart
+/// final networkLogger = Logger(config: LogConfig(), namespace: 'network');
+/// networkLogger.i('API request sent');
+/// ```
 class Logger {
+  /// Create a new [Logger] instance.
+  ///
+  /// Parameters:
+  /// - [config]: The [LogConfig] for this logger
+  /// - [formatter]: Optional custom [LogFormatter] (defaults to [ColoredFormatter])
+  /// - [namespace]: Optional namespace for this logger
   Logger({
     required this.config,
     LogFormatter? formatter,
-  }) : _formatter = formatter ?? ColoredFormatter() {
+    String? namespace,
+  })  : _formatter = formatter ?? ColoredFormatter(),
+        _namespace = namespace {
     _initWriters();
     _initFilters();
   }
 
+  /// The logger configuration
   final LogConfig config;
+  
+  /// The namespace for this logger
+  final String? _namespace;
+  
   final List<LogWriter> _writers = [];
   final List<LogFilter> _filters = [];
+  final List<LogInterceptor> _interceptors = [];
   final LogFormatter _formatter;
 
   void _initWriters() {
@@ -41,7 +81,23 @@ class Logger {
     _filters.add(LevelFilter(config.minLevel));
   }
 
-  /// 记录日志
+  /// The namespace of this logger.
+  ///
+  /// Returns the namespace string if set, null otherwise.
+  String? get namespace => _namespace;
+
+  /// Record a log message.
+  ///
+  /// This method applies interceptors, filters, and formatters to the log record,
+  /// then writes it to all configured writers.
+  ///
+  /// Parameters:
+  /// - [level]: The [LogLevel] of this log
+  /// - [message]: The log message
+  /// - [tag]: Optional tag to categorize the log
+  /// - [error]: Optional error object
+  /// - [stackTrace]: Optional stack trace
+  /// - [data]: Optional additional data
   Future<void> log(
     LogLevel level,
     String message, {
@@ -50,22 +106,29 @@ class Logger {
     StackTrace? stackTrace,
     Map<String, dynamic>? data,
   }) async {
-    final record = LogRecord(
+    // Create the record
+    var record = LogRecord(
       level: level,
       message: message,
-      tag: tag,
+      tag: tag ?? _namespace,  // Use namespace as default tag
       error: error,
       stackTrace: stackTrace,
       data: data,
     );
 
-    // 应用过滤器
+    // Apply interceptors (in order)
+    for (final interceptor in _interceptors) {
+      record = interceptor.intercept(record);
+      if (record == null) return;  // Interceptor discarded the record
+    }
+
+    // Apply filters
     if (!_shouldLog(record)) return;
 
-    // 格式化
+    // Format
     final formatted = _formatter.format(record, config);
 
-    // 写入
+    // Write to all destinations
     await Future.wait(
       _writers.map((writer) => writer.write(record, formatted)),
     );
@@ -75,22 +138,22 @@ class Logger {
     return _filters.every((filter) => filter.shouldLog(record));
   }
 
-  /// Debug日志
+  /// Log a debug message.
   void d(String message, {String? tag, Map<String, dynamic>? data}) {
     log(LogLevel.debug, message, tag: tag, data: data);
   }
 
-  /// Info日志
+  /// Log an info message.
   void i(String message, {String? tag, Map<String, dynamic>? data}) {
     log(LogLevel.info, message, tag: tag, data: data);
   }
 
-  /// Warning日志
+  /// Log a warning message.
   void w(String message, {String? tag, Map<String, dynamic>? data}) {
     log(LogLevel.warning, message, tag: tag, data: data);
   }
 
-  /// Error日志
+  /// Log an error message.
   void e(
     String message, {
     String? tag,
@@ -108,7 +171,7 @@ class Logger {
     );
   }
 
-  /// Fatal日志
+  /// Log a fatal message.
   void f(
     String message, {
     String? tag,
@@ -126,19 +189,85 @@ class Logger {
     );
   }
 
-  /// 添加过滤器
+  /// Log a verbose message.
+  ///
+  /// Verbose logs are below debug level and may be filtered out in production.
+  void v(String message, {String? tag, Map<String, dynamic>? data}) {
+    log(LogLevel.debug, message, tag: tag, data: data);
+  }
+
+  /// Add a filter to this logger.
+  ///
+  /// Filters are applied in order to determine if a log record should be recorded.
   void addFilter(LogFilter filter) {
     _filters.add(filter);
   }
 
-  /// 移除过滤器
+  /// Remove a filter from this logger.
   void removeFilter(LogFilter filter) {
     _filters.remove(filter);
   }
 
-  /// 关闭日志记录器
+  /// Add an interceptor to this logger.
+  ///
+  /// Interceptors are executed in order before the log is written.
+  /// Lower order values execute first.
+  ///
+  /// ```dart
+  /// logger.addInterceptor(MyInterceptor());
+  /// ```
+  void addInterceptor(LogInterceptor interceptor) {
+    _interceptors.add(interceptor);
+    _interceptors.sort((a, b) => a.order.compareTo(b.order));
+  }
+
+  /// Remove an interceptor from this logger.
+  void removeInterceptor(LogInterceptor interceptor) {
+    _interceptors.remove(interceptor);
+  }
+
+  /// Get all interceptors.
+  List<LogInterceptor> get interceptors => List.unmodifiable(_interceptors);
+
+  /// Get all filters.
+  List<LogFilter> get filters => List.unmodifiable(_filters);
+
+  /// Get all writers.
+  List<LogWriter> get writers => List.unmodifiable(_writers);
+
+  /// Update the configuration.
+  ///
+  /// This recreates writers based on the new config.
+  void updateConfig(LogConfig newConfig) {
+    // Close existing writers
+    Future.wait(_writers.map((w) => w.close())).then((_) {
+      // Recreate writers with new config
+      _writers.clear();
+      
+      if (newConfig.enableConsole) {
+        _writers.add(ConsoleWriter());
+      }
+      if (newConfig.enableFile && newConfig.filePath != null) {
+        _writers.add(FileWriter(newConfig));
+      }
+      if (newConfig.enableRemote && newConfig.remoteUrl != null) {
+        _writers.add(RemoteWriter(newConfig));
+      }
+    });
+  }
+
+  /// Close this logger and release resources.
+  ///
+  /// This closes all writers and clears the writer list.
   Future<void> close() async {
     await Future.wait(_writers.map((writer) => writer.close()));
     _writers.clear();
+  }
+
+  /// Flush buffered writes.
+  ///
+  /// This waits for all pending writes to complete.
+  Future<void> flush() async {
+    await Future.wait(_writers.map((writer) => writer.flush()));
   }
 }

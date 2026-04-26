@@ -1,412 +1,172 @@
-﻿# LoggerKit API 参考
+# LoggerKit API Reference
 
-本文档提供 LoggerKit 的完整 API 参考。
+> v1.1.0 API 文档
 
 ## 目录
 
-- [LoggerKit](#LoggerKit)
-- [Logger](#logger)
-- [数据模型](#数据模型)
-- [格式化器](#格式化器)
-- [写入器](#写入器)
-- [过滤器](#过滤器)
-- [完整示例](#完整示例)
+- [Core Classes](#core-classes)
+- [Models](#models)
+- [Interceptors](#interceptors)
+- [Formatters](#formatters)
+- [Filters](#filters)
+- [Writers](#writers)
 
 ---
 
-## LoggerKit
+## Core Classes
 
-全局日志管理器，提供便捷的静态方法。
+### LoggerKit
 
-### init
-
-初始化 LoggerKit。
+全局日志管理器。
 
 ```dart
-static void init({
-  LogLevel minLevel = LogLevel.debug,
-  bool enableConsole = true,
-  bool enableFile = false,
-  bool enableRemote = false,
-  String? filePath,
-  String? remoteUrl,
-  int maxFileSize = 10 * 1024 * 1024,
-  int maxFileCount = 5,
-  bool includeTimestamp = true,
-  bool includeTag = true,
-  bool includeEmoji = true,
-  bool prettyPrint = true,
-})
+class LoggerKit {
+  // 初始化
+  static void init({
+    LogLevel minLevel = LogLevel.debug,
+    bool enableConsole = true,
+    bool enableFile = false,
+    bool enableRemote = false,
+    String? filePath,
+    String? remoteUrl,
+    int maxFileSize = 10 * 1024 * 1024,
+    int maxFileCount = 5,
+    bool includeTimestamp = true,
+    bool includeTag = true,
+    bool includeEmoji = true,
+    bool prettyPrint = true,
+  });
+
+  // Builder 模式 (推荐)
+  static LoggerBuilder builder();
+
+  // 获取全局 logger
+  static Logger get instance;
+
+  // 命名空间
+  static Logger namespace(String name, {LogConfig? config});
+  static Logger get network;
+  static Logger get database;
+  static Logger get ui;
+  static Logger get storage;
+  static Logger get auth;
+  static Logger get analytics;
+
+  // 全局上下文
+  static LogContext get context;
+  static void setContext(LogContext context);
+  static void clearContext();
+
+  // 日志方法
+  static void d(String message, {String? tag, Map<String, dynamic>? data});
+  static void i(String message, {String? tag, Map<String, dynamic>? data});
+  static void w(String message, {String? tag, Map<String, dynamic>? data});
+  static void e(String message, {String? tag, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data});
+  static void f(String message, {String? tag, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data});
+  static void v(String message, {String? tag, Map<String, dynamic>? data});
+  static void event(String name, {Map<String, dynamic>? data});
+
+  // 生命周期
+  static Future<void> close();
+}
 ```
 
-**参数**:
+### LoggerBuilder
 
-- `minLevel` (可选): 最小日志级别，默认 `LogLevel.debug`
-- `enableConsole` (可选): 启用控制台输出，默认 `true`
-- `enableFile` (可选): 启用文件日志，默认 `false`
-- `enableRemote` (可选): 启用远程日志，默认 `false`
-- `filePath` (可选): 文件日志路径
-- `remoteUrl` (可选): 远程日志 URL
-- `maxFileSize` (可选): 最大文件大小（字节），默认 10MB
-- `maxFileCount` (可选): 最大文件数量，默认 5
-- `includeTimestamp` (可选): 包含时间戳，默认 `true`
-- `includeTag` (可选): 包含标签，默认 `true`
-- `includeEmoji` (可选): 包含 emoji，默认 `true`
-- `prettyPrint` (可选): 美化输出，默认 `true`
-
-**示例**:
+链式配置构建器。
 
 ```dart
-LoggerKit.init(
-  minLevel: LogLevel.debug,
-  enableConsole: true,
-  enableFile: true,
-  filePath: 'logs',
-);
+class LoggerBuilder {
+  // 配置方法
+  LoggerBuilder minLevel(LogLevel level);
+  LoggerBuilder console({bool? prettyPrint});
+  LoggerBuilder noConsole();
+  LoggerBuilder file({String? path, int? maxSize, int? maxCount});
+  LoggerBuilder noFile();
+  LoggerBuilder remote({String? url, int? batchSize, int? flushInterval});
+  LoggerBuilder noRemote();
+  LoggerBuilder timestamp(bool include);
+  LoggerBuilder tag(bool include);
+  LoggerBuilder emoji(bool include);
+  LoggerBuilder prettyPrint(bool enable);
+  LoggerBuilder privacyFields(List<String> fields);
+  LoggerBuilder context(LogContext context);
+  
+  // 拦截器
+  LoggerBuilder addInterceptor(LogInterceptor interceptor);
+  LoggerBuilder addInterceptors(List<LogInterceptor> interceptors);
+
+  // 构建
+  Logger build();
+  Logger buildAndSetGlobal();
+}
 ```
 
----
+### Logger
 
-### d
-
-记录 Debug 级别日志。
+日志记录器实例。
 
 ```dart
-static void d(String message, {String? tag, Map<String, dynamic>? data})
+class Logger {
+  final LogConfig config;
+  final String? namespace;
+
+  // 日志方法
+  void d(String message, {String? tag, Map<String, dynamic>? data});
+  void i(String message, {String? tag, Map<String, dynamic>? data});
+  void w(String message, {String? tag, Map<String, dynamic>? data});
+  void e(String message, {String? tag, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data});
+  void f(String message, {String? tag, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data});
+  void v(String message, {String? tag, Map<String, dynamic>? data});
+
+  // 拦截器和过滤器
+  void addInterceptor(LogInterceptor interceptor);
+  void removeInterceptor(LogInterceptor interceptor);
+  void addFilter(LogFilter filter);
+  void removeFilter(LogFilter filter);
+  List<LogInterceptor> get interceptors;
+  List<LogFilter> get filters;
+  List<LogWriter> get writers;
+
+  // 生命周期
+  void updateConfig(LogConfig config);
+  Future<void> close();
+  Future<void> flush();
+}
 ```
 
-**参数**:
+### LoggerManager
 
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `data` (可选): 附加数据
-
-**示例**:
+命名空间管理器。
 
 ```dart
-LoggerKit.d('Debug message');
-LoggerKit.d('User data loaded', tag: 'DATA', data: {'count': 10});
-```
+class LoggerManager {
+  static final LoggerManager instance;
 
----
+  // 命名空间操作
+  Logger namespace(String name, {LogConfig? config});
+  void registerNamespace(String name, {LogConfig? config});
+  bool hasNamespace(String name);
+  List<String> get namespaceNames;
+  Future<void> removeNamespace(String name);
+  Future<void> clearAll();
 
-### i
+  // 创建独立 logger
+  Logger createLogger({LogConfig? config, String? namespace});
 
-记录 Info 级别日志。
-
-```dart
-static void i(String message, {String? tag, Map<String, dynamic>? data})
-```
-
-**参数**:
-
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `data` (可选): 附加数据
-
-**示例**:
-
-```dart
-LoggerKit.i('Info message');
-LoggerKit.i('User logged in', tag: 'AUTH', data: {'userId': '12345'});
-```
-
----
-
-### w
-
-记录 Warning 级别日志。
-
-```dart
-static void w(String message, {String? tag, Map<String, dynamic>? data})
-```
-
-**参数**:
-
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `data` (可选): 附加数据
-
-**示例**:
-
-```dart
-LoggerKit.w('Warning message');
-LoggerKit.w('API rate limit approaching', tag: 'API', data: {'remaining': 10});
-```
-
----
-
-### e
-
-记录 Error 级别日志。
-
-```dart
-static void e(
-  String message, {
-  String? tag,
-  Object? error,
-  StackTrace? stackTrace,
-  Map<String, dynamic>? data,
-})
-```
-
-**参数**:
-
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `error` (可选): 错误对象
-- `stackTrace` (可选): 堆栈跟踪
-- `data` (可选): 附加数据
-
-**示例**:
-
-```dart
-try {
-  throw Exception('Something went wrong');
-} catch (e, stack) {
-  LoggerKit.e(
-    'Failed to process data',
-    tag: 'ERROR',
-    error: e,
-    stackTrace: stack,
-  );
+  // 预设命名空间
+  Logger get network;
+  Logger get database;
+  Logger get ui;
+  Logger get storage;
+  Logger get auth;
+  Logger get analytics;
 }
 ```
 
 ---
 
-### f
-
-记录 Fatal 级别日志。
-
-```dart
-static void f(
-  String message, {
-  String? tag,
-  Object? error,
-  StackTrace? stackTrace,
-  Map<String, dynamic>? data,
-})
-```
-
-**参数**:
-
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `error` (可选): 错误对象
-- `stackTrace` (可选): 堆栈跟踪
-- `data` (可选): 附加数据
-
-**示例**:
-
-```dart
-LoggerKit.f(
-  'Critical system failure',
-  tag: 'SYSTEM',
-  error: error,
-  stackTrace: stackTrace,
-);
-```
-
----
-
-### event
-
-记录事件。
-
-```dart
-static void event(String name, {Map<String, dynamic>? data})
-```
-
-**参数**:
-
-- `name` (必需): 事件名称
-- `data` (可选): 事件数据
-
-**示例**:
-
-```dart
-LoggerKit.event('user_login', data: {
-  'userId': '12345',
-  'timestamp': DateTime.now().toIso8601String(),
-});
-
-LoggerKit.event('button_clicked', data: {
-  'buttonId': 'submit_button',
-  'screen': 'home',
-});
-```
-
----
-
-### close
-
-关闭 LoggerKit，释放资源。
-
-```dart
-static Future<void> close()
-```
-
-**示例**:
-
-```dart
-@override
-void dispose() {
-  LoggerKit.close();
-  super.dispose();
-}
-```
-
----
-
-### instance
-
-获取 Logger 实例。
-
-```dart
-static Logger get instance
-```
-
-**返回值**: `Logger` - Logger 实例
-
-**示例**:
-
-```dart
-final logger = LoggerKit.instance;
-logger.addFilter(MyCustomFilter());
-```
-
----
-
-## Logger
-
-日志记录器类，提供更灵活的日志记录功能。
-
-### 构造函数
-
-```dart
-Logger({
-  required LogConfig config,
-  LogFormatter? formatter,
-})
-```
-
-**参数**:
-
-- `config` (必需): 日志配置
-- `formatter` (可选): 日志格式化器，默认使用 `ColoredFormatter`
-
-**示例**:
-
-```dart
-final logger = Logger(
-  config: LogConfig(
-    minLevel: LogLevel.debug,
-    enableConsole: true,
-  ),
-  formatter: JsonFormatter(),
-);
-```
-
----
-
-### log
-
-记录日志。
-
-```dart
-Future<void> log(
-  LogLevel level,
-  String message, {
-  String? tag,
-  Object? error,
-  StackTrace? stackTrace,
-  Map<String, dynamic>? data,
-})
-```
-
-**参数**:
-
-- `level` (必需): 日志级别
-- `message` (必需): 日志消息
-- `tag` (可选): 日志标签
-- `error` (可选): 错误对象
-- `stackTrace` (可选): 堆栈跟踪
-- `data` (可选): 附加数据
-
-**示例**:
-
-```dart
-await logger.log(
-  LogLevel.info,
-  'User action',
-  tag: 'USER',
-  data: {'action': 'click'},
-);
-```
-
----
-
-### addFilter
-
-添加日志过滤器。
-
-```dart
-void addFilter(LogFilter filter)
-```
-
-**参数**:
-
-- `filter` (必需): 日志过滤器
-
-**示例**:
-
-```dart
-logger.addFilter(TagFilter(['IMPORTANT', 'CRITICAL']));
-```
-
----
-
-### removeFilter
-
-移除日志过滤器。
-
-```dart
-void removeFilter(LogFilter filter)
-```
-
-**参数**:
-
-- `filter` (必需): 要移除的日志过滤器
-
-**示例**:
-
-```dart
-final filter = TagFilter(['IMPORTANT']);
-logger.addFilter(filter);
-// 稍后移除
-logger.removeFilter(filter);
-```
-
----
-
-### close
-
-关闭日志记录器。
-
-```dart
-Future<void> close()
-```
-
-**示例**:
-
-```dart
-await logger.close();
-```
-
----
-
-## 数据模型
+## Models
 
 ### LogLevel
 
@@ -414,35 +174,19 @@ await logger.close();
 
 ```dart
 enum LogLevel {
-  debug(0, 'DEBUG', '🔍'),
-  info(1, 'INFO', 'ℹ️'),
-  warning(2, 'WARNING', '⚠️'),
-  error(3, 'ERROR', '❌'),
+  debug(0, 'DEBUG', '🔍');
+  info(1, 'INFO', 'ℹ️');
+  warning(2, 'WARNING', '⚠️');
+  error(3, 'ERROR', '❌');
   fatal(4, 'FATAL', '💀');
 
-  final int value;
-  final String name;
-  final String emoji;
+  bool shouldLog(LogLevel minLevel);
 }
 ```
-
-**方法**:
-
-- `shouldLog(LogLevel minLevel)` - 判断是否应该记录此级别的日志
-
-**示例**:
-
-```dart
-if (LogLevel.info.shouldLog(LogLevel.debug)) {
-  // 记录日志
-}
-```
-
----
 
 ### LogRecord
 
-日志记录类。
+单条日志记录。
 
 ```dart
 class LogRecord {
@@ -453,30 +197,29 @@ class LogRecord {
   final Object? error;
   final StackTrace? stackTrace;
   final Map<String, dynamic>? data;
+
+  LogRecord copyWith({
+    LogLevel? level,
+    String? message,
+    DateTime? timestamp,
+    String? tag,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+    bool clearTag = false,
+    bool clearError = false,
+    bool clearStackTrace = false,
+    bool clearData = false,
+  });
+
+  Map<String, dynamic> toJson();
+  factory LogRecord.fromJson(Map<String, dynamic> json);
 }
 ```
 
-**方法**:
-
-- `toJson()` - 转换为 JSON 格式
-
-**示例**:
-
-```dart
-final record = LogRecord(
-  level: LogLevel.info,
-  message: 'Test message',
-  tag: 'TEST',
-);
-
-final json = record.toJson();
-```
-
----
-
 ### LogConfig
 
-日志配置类。
+日志配置。
 
 ```dart
 class LogConfig {
@@ -492,29 +235,131 @@ class LogConfig {
   final bool includeTag;
   final bool includeEmoji;
   final bool prettyPrint;
+
+  LogConfig copyWith({...});
 }
 ```
 
-**示例**:
+### LogContext
+
+结构化日志上下文。
 
 ```dart
-final config = LogConfig(
-  minLevel: LogLevel.debug,
-  enableConsole: true,
-  enableFile: true,
-  filePath: 'logs',
-  maxFileSize: 10 * 1024 * 1024,
-  maxFileCount: 5,
-);
+class LogContext {
+  String? userId;
+  String? sessionId;
+  String? traceId;
+  String? deviceId;
+  final Map<String, dynamic> custom;
+
+  // 方法
+  void set(String key, dynamic value);
+  dynamic get(String key);
+  dynamic remove(String key);
+  bool containsKey(String key);
+  void clear();
+  void clearAll();
+  Map<String, dynamic> toMap();
+  LogContext copyWith({...});
+
+  bool get isEmpty;
+  bool get isNotEmpty;
+
+  // 全局上下文
+  static LogContext current = LogContext();
+}
 ```
 
 ---
 
-## 格式化器
+## Interceptors
+
+### LogInterceptor
+
+拦截器接口。
+
+```dart
+abstract class LogInterceptor {
+  LogRecord? intercept(LogRecord record);
+  int get order => 0;
+}
+```
+
+### PassThroughInterceptor
+
+透传拦截器（不做任何修改）。
+
+```dart
+class PassThroughInterceptor implements LogInterceptor {
+  @override
+  LogRecord? intercept(LogRecord record) => record;
+}
+```
+
+### CompositeInterceptor
+
+组合拦截器。
+
+```dart
+class CompositeInterceptor implements LogInterceptor {
+  CompositeInterceptor(List<LogInterceptor> interceptors, {bool stopOnNull = true});
+
+  void add(LogInterceptor interceptor);
+  void remove(LogInterceptor interceptor);
+  int get length;
+  bool get isEmpty;
+  bool get isNotEmpty;
+}
+```
+
+### PrivacyInterceptor
+
+隐私数据过滤拦截器。
+
+```dart
+class PrivacyInterceptor implements LogInterceptor {
+  PrivacyInterceptor({
+    List<String>? sensitiveFields,
+    String maskValue = '***',
+    bool recursive = true,
+  });
+
+  // 默认过滤的字段:
+  // password, passwd, pwd, token, accessToken, apiKey,
+  // secret, auth, authorization, creditCard, cvv, ssn, ...
+}
+```
+
+### ContextInterceptor
+
+上下文注入拦截器。
+
+```dart
+class ContextInterceptor implements LogInterceptor {
+  ContextInterceptor({LogContext Function()? getContext});
+
+  @override
+  int get order => 0;
+}
+```
+
+### ScopedContextInterceptor
+
+作用域上下文拦截器。
+
+```dart
+class ScopedContextInterceptor implements LogInterceptor {
+  T runWithContext<T>(LogContext context, T Function() callback);
+}
+```
+
+---
+
+## Formatters
 
 ### LogFormatter
 
-日志格式化器接口。
+格式化器接口。
 
 ```dart
 abstract class LogFormatter {
@@ -522,165 +367,25 @@ abstract class LogFormatter {
 }
 ```
 
----
-
-### ColoredFormatter
-
-彩色格式化器（默认）。
-
-```dart
-class ColoredFormatter implements LogFormatter {
-  @override
-  String format(LogRecord record, LogConfig config) {
-    // 返回彩色格式化的日志
-  }
-}
-```
-
-**输出格式**:
-
-```text
-[2026-03-09 10:30:45] 🔍 [DEBUG] [TAG] Message
-```
-
----
-
 ### SimpleFormatter
 
 简单格式化器。
-
-```dart
-class SimpleFormatter implements LogFormatter {
-  @override
-  String format(LogRecord record, LogConfig config) {
-    return '${record.level.name}: ${record.message}';
-  }
-}
-```
-
-**输出格式**:
-
-```text
-INFO: Message
-```
-
----
 
 ### JsonFormatter
 
 JSON 格式化器。
 
-```dart
-class JsonFormatter implements LogFormatter {
-  @override
-  String format(LogRecord record, LogConfig config) {
-    return jsonEncode(record.toJson());
-  }
-}
-```
+### ColoredFormatter
 
-**输出格式**:
-
-```json
-{"level":"INFO","message":"Message","timestamp":"2026-03-09T10:30:45.000Z"}
-```
+彩色格式化器（控制台输出）。
 
 ---
 
-## 写入器
-
-### LogWriter
-
-日志写入器接口。
-
-```dart
-abstract class LogWriter {
-  Future<void> write(LogRecord record, String formatted);
-  Future<void> close();
-}
-```
-
----
-
-### ConsoleWriter
-
-控制台写入器。
-
-```dart
-class ConsoleWriter implements LogWriter {
-  @override
-  Future<void> write(LogRecord record, String formatted) async {
-    print(formatted);
-  }
-
-  @override
-  Future<void> close() async {}
-}
-```
-
----
-
-### FileWriter
-
-文件写入器，支持自动轮转。
-
-```dart
-class FileWriter implements LogWriter {
-  FileWriter(LogConfig config);
-
-  @override
-  Future<void> write(LogRecord record, String formatted) async {
-    // 写入文件，自动轮转
-  }
-
-  @override
-  Future<void> close() async {
-    // 关闭文件
-  }
-}
-```
-
-**特性**:
-
-- 自动文件轮转（超过 maxFileSize）
-- 自动清理旧文件（保留 maxFileCount 个）
-- 异步写入
-
----
-
-### RemoteWriter
-
-远程写入器，批量上传日志。
-
-```dart
-class RemoteWriter implements LogWriter {
-  RemoteWriter(LogConfig config);
-
-  @override
-  Future<void> write(LogRecord record, String formatted) async {
-    // 缓冲日志，批量上传
-  }
-
-  @override
-  Future<void> close() async {
-    // 上传剩余日志
-  }
-}
-```
-
-**特性**:
-
-- 批量上传（每 10 条或 30 秒）
-- 自动重试
-- 失败静默处理
-
----
-
-## 过滤器
+## Filters
 
 ### LogFilter
 
-日志过滤器接口。
+过滤器接口。
 
 ```dart
 abstract class LogFilter {
@@ -688,33 +393,15 @@ abstract class LogFilter {
 }
 ```
 
----
-
 ### LevelFilter
 
 级别过滤器。
 
 ```dart
 class LevelFilter implements LogFilter {
-  final LogLevel minLevel;
-
-  LevelFilter(this.minLevel);
-
-  @override
-  bool shouldLog(LogRecord record) {
-    return record.level.shouldLog(minLevel);
-  }
+  LevelFilter(LogLevel minLevel);
 }
 ```
-
-**示例**:
-
-```dart
-final filter = LevelFilter(LogLevel.warning);
-logger.addFilter(filter);
-```
-
----
 
 ### TagFilter
 
@@ -722,25 +409,9 @@ logger.addFilter(filter);
 
 ```dart
 class TagFilter implements LogFilter {
-  final List<String> allowedTags;
-
-  TagFilter(this.allowedTags);
-
-  @override
-  bool shouldLog(LogRecord record) {
-    return record.tag != null && allowedTags.contains(record.tag);
-  }
+  TagFilter(List<String> allowedTags);
 }
 ```
-
-**示例**:
-
-```dart
-final filter = TagFilter(['IMPORTANT', 'CRITICAL']);
-logger.addFilter(filter);
-```
-
----
 
 ### CompositeFilter
 
@@ -748,199 +419,127 @@ logger.addFilter(filter);
 
 ```dart
 class CompositeFilter implements LogFilter {
-  final List<LogFilter> filters;
-
-  CompositeFilter(this.filters);
-
-  @override
-  bool shouldLog(LogRecord record) {
-    return filters.every((filter) => filter.shouldLog(record));
-  }
+  CompositeFilter(List<LogFilter> filters, {bool requireAll = true});
 }
-```
-
-**示例**:
-
-```dart
-final filter = CompositeFilter([
-  LevelFilter(LogLevel.info),
-  TagFilter(['IMPORTANT']),
-]);
-logger.addFilter(filter);
 ```
 
 ---
 
-## 完整示例
+## Writers
 
-### 基础使用
+### LogWriter
+
+写入器接口。
+
+```dart
+abstract class LogWriter {
+  Future<void> write(LogRecord record, String formatted);
+  Future<void> close();
+  Future<void> flush() async {} // 可选实现
+}
+```
+
+### ConsoleWriter
+
+控制台写入器。
+
+### FileWriter
+
+文件写入器（支持日志轮转）。
+
+### RemoteWriter
+
+远程日志写入器（HTTP 上报，带缓冲）。
+
+---
+
+## Usage Examples
+
+### 基本使用
 
 ```dart
 import 'package:logger_kit/logger_kit.dart';
 
 void main() {
-  // 初始化
-  LoggerKit.init(
-    minLevel: LogLevel.debug,
-    enableConsole: true,
-  );
-
-  // 记录日志
+  LoggerKit.init();
+  
   LoggerKit.d('Debug message');
   LoggerKit.i('Info message');
   LoggerKit.w('Warning message');
-  LoggerKit.e('Error message');
-
-  // 关闭
-  LoggerKit.close();
+  LoggerKit.e('Error occurred', error: Exception('test'));
+  LoggerKit.f('Fatal error');
 }
 ```
 
-### 高级使用
+### Builder 模式
 
 ```dart
-import 'package:logger_kit/logger_kit.dart';
-
-void main() async {
-  // 自定义配置
-  final config = LogConfig(
-    minLevel: LogLevel.debug,
-    enableConsole: true,
-    enableFile: true,
-    filePath: 'logs',
-  );
-
-  // 创建自定义 Logger
-  final logger = Logger(
-    config: config,
-    formatter: JsonFormatter(),
-  );
-
-  // 添加过滤器
-  logger.addFilter(TagFilter(['IMPORTANT']));
-
-  // 记录日志
-  await logger.log(
-    LogLevel.info,
-    'Important message',
-    tag: 'IMPORTANT',
-    data: {'key': 'value'},
-  );
-
-  // 关闭
-  await logger.close();
-}
+LoggerKit.builder()
+  ..minLevel(LogLevel.info)
+  ..console(prettyPrint: true)
+  ..file(path: './logs', maxSize: 10 * 1024 * 1024)
+  ..privacyFields(['password', 'token'])
+  ..build();
 ```
 
-### Flutter 应用示例
+### 命名空间
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:logger_kit/logger_kit.dart';
+// 创建命名空间 logger
+final networkLogger = LoggerKit.namespace('network');
+networkLogger.i('API request sent');
 
-void main() {
-  // 初始化日志
-  LoggerKit.init(
-    minLevel: kDebugMode ? LogLevel.debug : LogLevel.warning,
-    enableConsole: kDebugMode,
-    enableFile: true,
-    enableRemote: !kDebugMode,
-    filePath: 'logs',
-    remoteUrl: 'https://log.example.com/api/logs',
-  );
+// 使用预设命名空间
+LoggerKit.network.i('Network activity');
+LoggerKit.database.d('Query executed');
+LoggerKit.ui.d('Screen rendered');
 
-  // 捕获全局错误
-  FlutterError.onError = (details) {
-    LoggerKit.e(
-      'Flutter error',
-      tag: 'FLUTTER',
-      error: details.exception,
-      stackTrace: details.stack,
-    );
-  };
+// 注册预设命名空间
+LoggerKit.registerNamespace('custom', config: LogConfig(
+  minLevel: LogLevel.warning,
+));
+```
 
-  runApp(MyApp());
-}
+### 拦截器
 
-class MyApp extends StatelessWidget {
+```dart
+LoggerKit.builder()
+  ..minLevel(LogLevel.debug)
+  ..console()
+  ..addInterceptor(ContextInterceptor())
+  ..addInterceptor(PrivacyInterceptor())
+  ..build();
+
+// 自定义拦截器
+class UserInterceptor implements LogInterceptor {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'LoggerKit Demo',
-      home: HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    LoggerKit.event('page_view', data: {
-      'page': 'HomePage',
-    });
-  }
-
-  Future<void> _fetchData() async {
-    LoggerKit.i('Fetching data', tag: 'NETWORK');
-
-    try {
-      // 模拟网络请求
-      await Future.delayed(Duration(seconds: 2));
-
-      LoggerKit.i('Data fetched', tag: 'NETWORK', data: {
-        'itemCount': 10,
-      });
-    } catch (e, stack) {
-      LoggerKit.e(
-        'Failed to fetch data',
-        tag: 'NETWORK',
-        error: e,
-        stackTrace: stack,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('LoggerKit Demo')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _fetchData,
-          child: Text('Fetch Data'),
-        ),
-      ),
+  LogRecord? intercept(LogRecord record) {
+    return record.copyWith(
+      data: {
+        ...?record.data,
+        'userId': getCurrentUserId(),
+      },
     );
   }
-
+  
   @override
-  void dispose() {
-    LoggerKit.close();
-    super.dispose();
-  }
+  int get order => 10;
 }
 ```
 
----
+### 全局上下文
 
-## 相关文档
+```dart
+// 设置全局上下文
+LoggerKit.setContext(LogContext(
+  userId: 'user_123',
+  sessionId: 'session_abc',
+  traceId: 'trace_xyz',
+));
 
-- [快速参考](QUICK_REFERENCE.md)
-- [使用指南](USAGE_GUIDE.md)
-- [架构设计](ARCHITECTURE.md)
-- [代码风格指南](CODE_STYLE.md)
-- [贡献指南](../CONTRIBUTING.md)
+// 添加自定义字段
+LoggerKit.context.set('requestId', 'req_456');
 
----
-
-**文档版本**: 1.0  
-**更新日期**: 2026-03-09  
-**项目**: LoggerKit  
-**项目地址**: https://github.com/h1s97x/LoggerKit
+// 所有日志都会包含这些上下文
+LoggerKit.i('User action');  // 自动包含 userId, sessionId, traceId, requestId
+```

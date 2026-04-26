@@ -1,6 +1,6 @@
 ﻿# LoggerKit
 
-一个功能完善的Flutter日志工具包，支持控制台、文件和远程日志记录。
+> 一个功能完善的 Flutter 日志工具包，v2.0 全面升级
 
 ## 功能特性
 
@@ -8,6 +8,10 @@
 - 🖥️ **控制台输出** - 彩色格式化输出
 - 💾 **文件日志** - 自动轮转和清理
 - 📤 **远程日志** - 批量上传到服务器
+- 🏷️ **命名空间** - 模块化日志管理
+- 🔒 **隐私过滤** - 自动过滤敏感数据
+- 🔄 **拦截器** - 灵活扩展日志处理链
+- 📎 **上下文注入** - 结构化日志数据
 - 🎨 **自定义格式** - 支持多种格式化器
 - 🔍 **日志过滤** - 按级别、标签过滤
 - 📊 **事件追踪** - 记录用户行为事件
@@ -128,7 +132,92 @@ LoggerKit.event('button_clicked', data: {
 });
 ```
 
-### 7. 高级配置
+### 7. Builder 模式 (v2.0 推荐)
+
+```dart
+// 使用 Builder 模式进行链式配置
+LoggerKit.builder()
+  ..minLevel(LogLevel.debug)
+  ..console(prettyPrint: true)
+  ..file(path: './logs', maxSize: 10 * 1024 * 1024)
+  ..privacyFields(['password', 'token'])
+  ..addInterceptor(ContextInterceptor())
+  ..addInterceptor(PrivacyInterceptor())
+  ..build();
+```
+
+### 8. 命名空间 (v2.0)
+
+```dart
+// 创建命名空间 logger
+final networkLogger = LoggerKit.namespace('network');
+networkLogger.i('API request sent');
+
+// 使用预设快捷方式
+LoggerKit.network.i('Network activity');
+LoggerKit.database.d('Query executed');
+LoggerKit.ui.d('Screen rendered');
+```
+
+### 9. 全局上下文 (v2.0)
+
+```dart
+// 设置全局上下文，所有日志都会包含
+LoggerKit.setContext(LogContext(
+  userId: 'user_123',
+  sessionId: 'session_abc',
+  traceId: 'trace_xyz',
+));
+
+// 添加自定义字段
+LoggerKit.context.set('requestId', 'req_456');
+
+// 所有日志都会自动包含这些上下文
+LoggerKit.i('User action');  // 自动包含 userId, sessionId, traceId, requestId
+```
+
+### 10. 自定义拦截器 (v2.0)
+
+```dart
+// 创建自定义拦截器
+class UserInterceptor implements LogInterceptor {
+  @override
+  LogRecord? intercept(LogRecord record) {
+    return record.copyWith(
+      data: {
+        ...?record.data,
+        'userId': getCurrentUserId(),
+      },
+    );
+  }
+  
+  @override
+  int get order => 10;
+}
+
+// 添加到 Logger
+LoggerKit.builder()
+  ..addInterceptor(UserInterceptor())
+  ..build();
+```
+
+### 11. 隐私数据过滤 (v2.0)
+
+```dart
+// 默认过滤敏感字段：password, token, apiKey, secret 等
+LoggerKit.builder()
+  ..console()
+  ..privacyFields(['customSecret'])  // 添加自定义敏感字段
+  ..build();
+
+// 记录日志时自动过滤
+LoggerKit.i('User logged in', data: {
+  'username': 'john',
+  'password': 'secret123',  // 自动被过滤为 ***
+  'token': 'abc123',        // 自动被过滤为 ***
+});
+
+// 输出: User logged in | {username: john, password: ***, token: ***}
 
 ```dart
 LoggerKit.init(
@@ -344,4 +433,4 @@ MIT License
 ---
 
 **项目地址**: https://github.com/h1s97x/LoggerKit  
-**版本**: 1.0.0
+**版本**: 1.1.0

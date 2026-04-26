@@ -2,12 +2,24 @@ import '../models/log_record.dart';
 import '../models/log_config.dart';
 import '../models/log_level.dart';
 
-/// 日志格式化器接口
+/// Interface for log formatters.
+///
+/// Implementations of [LogFormatter] are responsible for converting [LogRecord]
+/// objects into formatted strings suitable for output.
 abstract class LogFormatter {
+  /// Format a log record according to the configuration.
+  ///
+  /// Parameters:
+  /// - [record]: The [LogRecord] to format
+  /// - [config]: The [LogConfig] for formatting options
+  ///
+  /// Returns the formatted log string.
   String format(LogRecord record, LogConfig config);
 }
 
-/// 简单格式化器
+/// Simple log formatter.
+///
+/// Formats logs with timestamp, level, tag, message, and optional error/stack trace.
 class SimpleFormatter implements LogFormatter {
   @override
   String format(LogRecord record, LogConfig config) {
@@ -65,7 +77,9 @@ class SimpleFormatter implements LogFormatter {
   }
 }
 
-/// JSON格式化器
+/// JSON log formatter.
+///
+/// Formats logs as JSON objects, useful for structured logging and remote transmission.
 class JsonFormatter implements LogFormatter {
   @override
   String format(LogRecord record, LogConfig config) {
@@ -73,7 +87,14 @@ class JsonFormatter implements LogFormatter {
   }
 }
 
-/// 彩色格式化器（用于控制台）
+/// Colored log formatter for console output.
+///
+/// Formats logs with ANSI color codes for better readability in terminals.
+/// Different log levels are displayed in different colors:
+/// - Debug: Gray
+/// - Info: Blue
+/// - Warning: Yellow
+/// - Error/Fatal: Red
 class ColoredFormatter implements LogFormatter {
   static const String _reset = '\x1B[0m';
   static const String _red = '\x1B[31m';

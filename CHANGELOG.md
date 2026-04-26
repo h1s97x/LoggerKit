@@ -9,6 +9,48 @@
 
 ## English
 
+### [1.1.0] - 2026-03-20
+
+#### Added
+- **LoggerBuilder** - Fluent builder pattern for chain configuration
+- **LoggerManager** - Namespace management for modular logging
+- **LogInterceptor** - Middleware/Interceptor architecture for log processing chain
+- **LogContext** - Structured log context with global context injection
+- **PrivacyInterceptor** - Automatic privacy data filtering (password, token, apiKey, etc.)
+- **ContextInterceptor** - Global context injection interceptor
+- **Preset namespaces** - network, database, ui, storage, auth, analytics
+- **ScopedContextInterceptor** - Scoped context management for request/response
+- **CompositeInterceptor** - Chain multiple interceptors together
+- **Backward compatible init() method** - Keep v1.x API working
+
+#### Changed
+- **Enhanced Logger class** - Now supports interceptors, namespace, and context
+- **Updated LogRecord** - Added context field for structured data
+- **Improved LogConfig** - More flexible configuration options
+- **Updated LogLevel** - Added verbose level for detailed logging
+
+#### Improved
+- Better separation of concerns with interceptor layer
+- Cleaner API with builder pattern
+- More flexible extension points
+
+---
+
+### [1.0.2] - 2026-03-16
+
+#### Added
+- Comprehensive dartdoc comments for all public APIs
+- Detailed documentation for all classes, methods, and parameters
+- Usage examples in dartdoc comments
+- Better IDE support with improved documentation
+
+#### Improved
+- Enhanced code documentation for better developer experience
+- Added parameter descriptions for all public methods
+- Included return value documentation
+
+---
+
 ### [1.0.1] - 2026-03-16
 
 #### Added
@@ -72,6 +114,43 @@
 ---
 
 ## 中文
+
+### [1.1.0] - 2026-03-20
+
+#### 新增
+- **LoggerBuilder** - 链式配置构建器模式
+- **LoggerManager** - 命名空间管理，支持模块化日志
+- **LogInterceptor** - 拦截器/中间件架构，日志处理链
+- **LogContext** - 结构化日志上下文，全局上下文注入
+- **PrivacyInterceptor** - 自动隐私数据过滤（password, token, apiKey 等）
+- **ContextInterceptor** - 全局上下文注入拦截器
+- **预设命名空间** - network, database, ui, storage, auth, analytics
+- **ScopedContextInterceptor** - 作用域上下文管理
+- **CompositeInterceptor** - 组合多个拦截器
+- **向后兼容 init() 方法** - v1.x API 继续可用
+
+#### 改进
+- **增强 Logger 类** - 支持拦截器、命名空间和上下文
+- **更新 LogRecord** - 添加 context 字段支持结构化数据
+- **优化 LogConfig** - 更灵活的配置选项
+- **新增 verbose 级别** - 更详细的日志记录
+
+---
+
+### [1.0.2] - 2026-03-16
+
+#### 新增
+- 为所有公开API添加完整的dartdoc注释
+- 为所有类、方法和参数添加详细文档
+- 在dartdoc注释中包含使用示例
+- 改进IDE支持，提供更好的文档
+
+#### 改进
+- 增强代码文档，改善开发者体验
+- 为所有公开方法添加参数描述
+- 包含返回值文档
+
+---
 
 ### [1.0.1] - 2026-03-16
 
