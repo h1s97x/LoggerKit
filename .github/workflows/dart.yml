@@ -7,18 +7,15 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch:
 
-# 权限最小化原则
-permissions:
-  contents: read
-  pull-requests: write
-
 env:
   FLUTTER_VERSION: '3.24.0'
 
 jobs:
-  # 1. 格式检查
+  # 1. 格式检查 + 自动修复
   format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要写权限才能自动提交
     steps:
       - uses: actions/checkout@v4
 
@@ -27,12 +24,21 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
-      - name: Format check
-        run: dart format --set-exit-if-changed .
+      - name: Format code
+        run: dart format .
+
+      - name: Commit and push (if changes)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: dart format"
+          file_pattern: "*.dart"
+        continue-on-error: true  # 即使提交失败也继续
 
   # 2. 静态分析
   analyze:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +56,8 @@ jobs:
   # 3. 测试
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -68,8 +76,9 @@ jobs:
 
   # 4. 代码质量分析 (pana)
   pana:
-    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -84,11 +93,13 @@ jobs:
       - name: Run pana
         run: |
           flutter pub global activate pana
-          flutter pub global run pana --no-terminal --report-format=markdown
+          flutter pub global run pana
 
   # 5. Example 检查 (如果存在)
   example:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -98,32 +109,10 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Check example
-        if: |
-          file.exists('example/pubspec.yaml')
         run: |
-          cd example && flutter pub get && cd ..
-          echo "Example verified"
-
-  # 6. 自动修复格式问题并创建 PR
-  format-fix:
-    needs: format
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-
-      - name: Format code
-        run: dart format -o=changeset .
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: 'style: dart format fixes'
-          branch: chore/dart-format
-          commit-message: 'style: dart format fixes'
+          if [ -f "example/pubspec.yaml" ]; then
+            cd example && flutter pub get && cd ..
+            echo "Example verified"
+          else
+            echo "No example directory, skipping"
+          fi

@@ -1,6 +1,6 @@
 import '../models/log_config.dart';
-import '../models/log_level.dart';
 import 'logger.dart';
+import 'logger_kit.dart';
 
 /// Manager for namespace-scoped loggers.
 ///
@@ -63,7 +63,7 @@ class LoggerManager {
     }
 
     // Use preset config or create default
-    final namespaceConfig = _presetConfigs[name] ?? config ?? LogConfig();
+    final namespaceConfig = _presetConfigs[name] ?? config ?? const LogConfig();
 
     // Create and store new logger
     final logger = Logger(config: namespaceConfig, namespace: name);
@@ -83,8 +83,8 @@ class LoggerManager {
   /// ));
   /// ```
   void registerNamespace(String name, {LogConfig? config}) {
-    _presetConfigs[name] = config ?? LogConfig();
-    
+    _presetConfigs[name] = config ?? const LogConfig();
+
     // If namespace already exists, update its config
     if (_namespaces.containsKey(name)) {
       _namespaces[name]!.updateConfig(_presetConfigs[name]!);
@@ -123,7 +123,7 @@ class LoggerManager {
   /// Unlike [namespace], this creates a logger without registering it
   /// in the namespace registry.
   Logger createLogger({LogConfig? config, String? namespace}) {
-    return Logger(config: config ?? LogConfig(), namespace: namespace);
+    return Logger(config: config ?? const LogConfig(), namespace: namespace);
   }
 
   /// Get the global logger instance.

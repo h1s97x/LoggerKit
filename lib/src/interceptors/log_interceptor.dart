@@ -1,4 +1,4 @@
-import 'log_record.dart';
+import '../models/log_record.dart';
 
 /// Interface for log interceptors.
 ///
@@ -21,7 +21,7 @@ import 'log_record.dart';
 ///     record.data!['userId'] = getCurrentUserId();
 ///     return record;
 ///   }
-///   
+///
 ///   @override
 ///   int get order => 10;
 /// }
@@ -77,6 +77,9 @@ abstract class LogInterceptor {
 class PassThroughInterceptor implements LogInterceptor {
   @override
   LogRecord? intercept(LogRecord record) => record;
+
+  @override
+  int get order => 0;
 }
 
 /// Composite interceptor that chains multiple interceptors.
@@ -108,12 +111,12 @@ class CompositeInterceptor implements LogInterceptor {
   @override
   LogRecord? intercept(LogRecord record) {
     LogRecord? current = record;
-    
+
     for (final interceptor in _interceptors) {
       if (current == null) break;
       current = interceptor.intercept(current);
     }
-    
+
     return current;
   }
 

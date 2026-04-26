@@ -1,4 +1,7 @@
-/// A comprehensive logging toolkit for Flutter with console, file, and remote logging support.
+// ignore_for_file: unnecessary_library_name, dangling_library_doc_comments
+library logger_kit;
+
+/// A comprehensive logging toolkit
 ///
 /// LoggerKit provides a flexible and extensible logging system with the following features:
 /// - Multi-level logging (Debug, Info, Warning, Error, Fatal)
@@ -65,8 +68,6 @@
 /// LoggerKit.network.i('Network activity');
 /// LoggerKit.database.d('Database query');
 /// ```
-library logger_kit;
-
 // Core exports
 export 'src/core/logger_kit.dart';
 export 'src/core/logger.dart';

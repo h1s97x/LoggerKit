@@ -43,7 +43,7 @@ void main() {
 
     test('interceptor order should determine execution sequence', () {
       final results = <int>[];
-      
+
       final first = _RecordingInterceptor(1, results);
       final second = _RecordingInterceptor(2, results);
       final third = _RecordingInterceptor(3, results);
@@ -92,7 +92,7 @@ void main() {
         data: {
           'username': 'john',
           'password': 'secret123',
-          'apiKey': 'key123',
+          'token': 'token123',
         },
       );
 
@@ -100,12 +100,12 @@ void main() {
 
       expect(result!.data!['username'], equals('john'));
       expect(result.data!['password'], equals('***'));
-      expect(result.data!['apiKey'], equals('***'));
+      expect(result.data!['token'], equals('***'));
     });
 
     test('should filter custom sensitive fields', () {
       final interceptor = PrivacyInterceptor(
-        sensitiveFields: ['customSecret'],
+        extraSensitiveFields: ['customSecret'],
       );
       final record = LogRecord(
         level: LogLevel.info,
@@ -213,8 +213,8 @@ void main() {
         userId: 'user_123',
         sessionId: 'session_abc',
       );
-      
-      final interceptor = ContextInterceptor(() => testContext);
+
+      final interceptor = ContextInterceptor(getContext: () => testContext);
       final record = LogRecord(
         level: LogLevel.info,
         message: 'test',
@@ -229,8 +229,8 @@ void main() {
 
     test('should merge context with existing data', () {
       final testContext = LogContext(userId: 'user_123');
-      
-      final interceptor = ContextInterceptor(() => testContext);
+
+      final interceptor = ContextInterceptor(getContext: () => testContext);
       final record = LogRecord(
         level: LogLevel.info,
         message: 'test',
@@ -244,7 +244,7 @@ void main() {
     });
 
     test('should not modify record when context is empty', () {
-      final interceptor = ContextInterceptor(() => LogContext());
+      final interceptor = ContextInterceptor(getContext: () => LogContext());
       final originalData = {'key': 'value'};
       final record = LogRecord(
         level: LogLevel.info,
@@ -263,6 +263,9 @@ void main() {
 
 class _AddDataInterceptor implements LogInterceptor {
   @override
+  int get order => 0;
+
+  @override
   LogRecord? intercept(LogRecord record) {
     return record.copyWith(
       data: {
@@ -275,17 +278,20 @@ class _AddDataInterceptor implements LogInterceptor {
 
 class _DiscardingInterceptor implements LogInterceptor {
   @override
+  int get order => 0;
+
+  @override
   LogRecord? intercept(LogRecord record) => null;
 }
 
 class _RecordingInterceptor implements LogInterceptor {
-  _RecordingInterceptor(this.order, this.results);
-  
-  final int order;
+  _RecordingInterceptor(this._order, this.results);
+
+  final int _order;
   final List<int> results;
 
   @override
-  int get order => this.order;
+  int get order => _order;
 
   @override
   LogRecord? intercept(LogRecord record) {

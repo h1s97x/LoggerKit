@@ -3,6 +3,7 @@ import '../models/log_config.dart';
 import '../models/log_context.dart';
 import '../interceptors/log_interceptor.dart';
 import 'logger.dart';
+import 'logger_kit.dart';
 
 /// Builder for configuring and creating [Logger] instances.
 ///
@@ -42,15 +43,20 @@ class LoggerBuilder {
   int _maxFileCount = 5;
   bool _enableRemote = false;
   String? _remoteUrl;
-  int _remoteBatchSize = 10;
-  int _remoteFlushInterval = 30; // seconds
   bool _includeTimestamp = true;
   bool _includeTag = true;
   bool _includeEmoji = true;
   bool _prettyPrint = true;
-  List<String> _privacyFields = [];
   LogContext? _context;
   final List<LogInterceptor> _interceptors = [];
+
+  // Reserved for future use (Remote logging configuration)
+  // ignore: unused_field
+  int? _remoteBatchSize;
+  // ignore: unused_field
+  int? _remoteFlushInterval;
+  // ignore: unused_field
+  List<String>? _privacyFields;
 
   /// Set the minimum log level.
   ///
@@ -252,7 +258,7 @@ class LoggerBuilder {
   /// ```
   Logger buildAndSetGlobal() {
     final logger = build();
-    LoggerKit._setInstance(logger);
+    LoggerKit.setInstance(logger);
     return logger;
   }
 }

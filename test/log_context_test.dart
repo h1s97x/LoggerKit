@@ -85,7 +85,7 @@ void main() {
 
       expect(map['userId'], equals('user_123'));
       expect(map['sessionId'], equals('session_abc'));
-      expect(map['custom1'], equals('value1'));
+      expect(map['custom']!['custom1'], equals('value1'));
       expect(map.containsKey('traceId'), isFalse);
     });
 

@@ -15,6 +15,14 @@ abstract class LogWriter {
 
   /// Close this writer and release resources.
   Future<void> close();
+
+  /// Flush buffered writes.
+  ///
+  /// Override this if the writer has internal buffering.
+  Future<void> flush() async {
+    // Default implementation does nothing.
+    // Writers with buffering should override this.
+  }
 }
 
 /// Console log writer.
@@ -30,5 +38,10 @@ class ConsoleWriter implements LogWriter {
   @override
   Future<void> close() async {
     // 控制台不需要关闭
+  }
+
+  @override
+  Future<void> flush() async {
+    // 控制台不需要刷新
   }
 }

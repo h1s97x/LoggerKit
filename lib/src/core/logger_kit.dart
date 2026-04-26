@@ -1,7 +1,6 @@
 import '../models/log_level.dart';
 import '../models/log_config.dart';
 import '../models/log_context.dart';
-import '../interceptors/log_interceptor.dart';
 import 'logger.dart';
 import 'logger_builder.dart';
 import 'logger_manager.dart';
@@ -79,7 +78,7 @@ import 'logger_manager.dart';
 class LoggerKit {
   static Logger? _instance;
   static LogConfig? _config;
-  
+
   // Global context
   static LogContext _globalContext = LogContext();
 
@@ -136,7 +135,7 @@ class LoggerKit {
       ..noFile()
       ..noRemote()
       ..build();
-    
+
     // Handle file and remote if enabled
     if (enableFile && filePath != null) {
       builder()
@@ -145,7 +144,7 @@ class LoggerKit {
         ..file(path: filePath, maxSize: maxFileSize, maxCount: maxFileCount)
         ..build();
     }
-    
+
     if (enableRemote && remoteUrl != null) {
       builder()
         ..minLevel(minLevel)
@@ -153,7 +152,7 @@ class LoggerKit {
         ..remote(url: remoteUrl)
         ..build();
     }
-    
+
     // Simple approach: just create with basic settings
     _config = LogConfig(
       minLevel: minLevel,
@@ -327,7 +326,7 @@ class LoggerKit {
   }
 
   // Internal: for LoggerBuilder to set the global instance
-  static void _setInstance(Logger logger) {
+  static void setInstance(Logger logger) {
     _instance = logger;
   }
 }

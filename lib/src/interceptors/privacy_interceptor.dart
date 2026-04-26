@@ -52,39 +52,39 @@ class PrivacyInterceptor implements LogInterceptor {
   /// - [maskValue]: The value to replace sensitive data with (default: '***')
   /// - [recursive]: Whether to filter nested objects (default: true)
   PrivacyInterceptor({
-    List<String>? sensitiveFields,
+    List<String>? extraSensitiveFields,
     this.maskValue = '***',
     this.recursive = true,
   }) : sensitiveFields = {
-    // Default sensitive field names
-    'password',
-    'passwd',
-    'pwd',
-    'token',
-    'accessToken',
-    'access_token',
-    'refreshToken',
-    'refresh_token',
-    'apiKey',
-    'api_key',
-    'secret',
-    'auth',
-    'authorization',
-    'bearer',
-    'credential',
-    'credentials',
-    'creditCard',
-    'cardNumber',
-    'card_number',
-    'cvv',
-    'ssn',
-    'socialSecurityNumber',
-    'private',
-    'privateKey',
-    'private_key',
-    // Add custom fields
-    ...?sensitiveFields,
-  };
+          // Default sensitive field names
+          'password',
+          'passwd',
+          'pwd',
+          'token',
+          'accessToken',
+          'access_token',
+          'refreshToken',
+          'refresh_token',
+          'apiKey',
+          'api_key',
+          'secret',
+          'auth',
+          'authorization',
+          'bearer',
+          'credential',
+          'credentials',
+          'creditCard',
+          'cardNumber',
+          'card_number',
+          'cvv',
+          'ssn',
+          'socialSecurityNumber',
+          'private',
+          'privateKey',
+          'private_key',
+          // Add custom fields
+          ...?extraSensitiveFields,
+        };
 
   /// Set of field names considered sensitive.
   final Set<String> sensitiveFields;
@@ -162,7 +162,7 @@ class PrivacyInterceptor implements LogInterceptor {
   /// Check if a field name is sensitive.
   bool _isSensitiveField(String fieldName) {
     final lower = fieldName.toLowerCase();
-    
+
     // Check exact match
     if (sensitiveFields.contains(lower)) {
       return true;

@@ -54,10 +54,10 @@ class Logger {
 
   /// The logger configuration
   final LogConfig config;
-  
+
   /// The namespace for this logger
   final String? _namespace;
-  
+
   final List<LogWriter> _writers = [];
   final List<LogFilter> _filters = [];
   final List<LogInterceptor> _interceptors = [];
@@ -107,10 +107,10 @@ class Logger {
     Map<String, dynamic>? data,
   }) async {
     // Create the record
-    var record = LogRecord(
+    LogRecord record = LogRecord(
       level: level,
       message: message,
-      tag: tag ?? _namespace,  // Use namespace as default tag
+      tag: tag ?? _namespace, // Use namespace as default tag
       error: error,
       stackTrace: stackTrace,
       data: data,
@@ -118,8 +118,7 @@ class Logger {
 
     // Apply interceptors (in order)
     for (final interceptor in _interceptors) {
-      record = interceptor.intercept(record);
-      if (record == null) return;  // Interceptor discarded the record
+      record = interceptor.intercept(record) ?? record;
     }
 
     // Apply filters
@@ -243,7 +242,7 @@ class Logger {
     Future.wait(_writers.map((w) => w.close())).then((_) {
       // Recreate writers with new config
       _writers.clear();
-      
+
       if (newConfig.enableConsole) {
         _writers.add(ConsoleWriter());
       }

@@ -16,7 +16,7 @@ import 'log_interceptor.dart';
 ///   userId: 'user_123',
 ///   sessionId: 'session_abc',
 /// ));
-/// 
+///
 /// // Add context interceptor
 /// LoggerKit.builder()
 ///   ..addInterceptor(ContextInterceptor())
@@ -36,7 +36,7 @@ class ContextInterceptor implements LogInterceptor {
   ///   Defaults to using the global [LogContext.current].
   ContextInterceptor({
     LogContext Function()? getContext,
-  }) : _getContext = getContext ?? (() => LogContext.current);
+  }) : _getContext = getContext ?? (() => LogContext.current ?? LogContext());
 
   final LogContext Function() _getContext;
 
@@ -46,17 +46,17 @@ class ContextInterceptor implements LogInterceptor {
   @override
   LogRecord? intercept(LogRecord record) {
     final context = _getContext();
-    
+
     if (!context.isNotEmpty) {
       return record; // No context to inject
     }
 
     // Merge context into record data
     final mergedData = <String, dynamic>{};
-    
+
     // Add context fields first
     mergedData.addAll(context.toMap());
-    
+
     // Then add record data (record data takes precedence)
     if (record.data != null) {
       mergedData.addAll(record.data!);
@@ -84,7 +84,7 @@ class ContextInterceptor implements LogInterceptor {
 ///
 /// ```dart
 /// final scopedInterceptor = ScopedContextInterceptor();
-/// 
+///
 /// // Within a request handler:
 /// scopedInterceptor.runWithContext(LogContext(
 ///   requestId: request.headers['x-request-id'],
@@ -109,7 +109,7 @@ class ScopedContextInterceptor implements LogInterceptor {
     // Merge scoped context into record
     final mergedData = <String, dynamic>{};
     mergedData.addAll(context.toMap());
-    
+
     if (record.data != null) {
       mergedData.addAll(record.data!);
     }
@@ -131,7 +131,7 @@ class ScopedContextInterceptor implements LogInterceptor {
   T runWithContext<T>(LogContext context, T Function() callback) {
     final previousContext = _scopedContext;
     _scopedContext = context;
-    
+
     try {
       return callback();
     } finally {

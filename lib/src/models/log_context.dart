@@ -8,22 +8,20 @@
 ///
 /// ```dart
 /// // Set global context
-/// LoggerKit.setContext(LogContext(
+/// LogContext.current = LogContext(
 ///   userId: 'user_123',
 ///   sessionId: 'session_abc',
 ///   traceId: 'trace_xyz',
-/// ));
+/// );
 ///
 /// // Add custom fields
-/// LoggerKit.context.set('requestId', 'req_456');
+/// LogContext.current.set('requestId', 'req_456');
 ///
 /// // Context is automatically included in all logs
 /// LoggerKit.i('User action');  // Includes context in log record
 /// ```
 class LogContext {
   /// Create a new [LogContext].
-  ///
-  /// All parameters are optional and can be set later.
   LogContext({
     this.userId,
     this.sessionId,
@@ -31,6 +29,11 @@ class LogContext {
     this.deviceId,
     Map<String, dynamic>? custom,
   }) : custom = custom ?? {};
+
+  /// The current global log context.
+  ///
+  /// Set this to attach context to all subsequent log records.
+  static LogContext? current;
 
   /// User identifier.
   ///
@@ -118,16 +121,16 @@ class LogContext {
   /// Useful for serialization and structured logging.
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
-    
+
     if (userId != null) map['userId'] = userId;
     if (sessionId != null) map['sessionId'] = sessionId;
     if (traceId != null) map['traceId'] = traceId;
     if (deviceId != null) map['deviceId'] = deviceId;
-    
+
     if (custom.isNotEmpty) {
       map['custom'] = Map<String, dynamic>.from(custom);
     }
-    
+
     return map;
   }
 

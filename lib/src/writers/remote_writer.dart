@@ -53,6 +53,11 @@ class RemoteWriter implements LogWriter {
   }
 
   @override
+  Future<void> flush() async {
+    await _flush();
+  }
+
+  @override
   Future<void> close() async {
     _flushTimer?.cancel();
     await _flush();

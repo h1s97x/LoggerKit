@@ -73,6 +73,11 @@ class FileWriter implements LogWriter {
   }
 
   @override
+  Future<void> flush() async {
+    await _sink?.flush();
+  }
+
+  @override
   Future<void> close() async {
     await _sink?.flush();
     await _sink?.close();
