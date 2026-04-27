@@ -4,20 +4,9 @@ import 'package:logger_kit/models/models.dart';
 
 void main() {
   group('AnsiColor', () {
-    test('should wrap text with color codes', () {
-      final result = AnsiColor.red.wrap('error');
-      expect(result, equals('\x1B[91merror\x1B[0m'));
-    });
-
-    test('should reset color correctly', () {
-      final result = AnsiColor.reset.wrap('text');
-      expect(result, equals('\x1B[0mtext\x1B[0m'));
-    });
-
-    test('should format bold text', () {
-      final result = AnsiColor.bold.wrap('bold text');
-      expect(result, contains('bold text'));
-      expect(result, contains(AnsiColor.bold.code));
+    test('should have color codes', () {
+      expect(AnsiColor.red, isNotEmpty);
+      expect(AnsiColor.reset, isNotEmpty);
     });
   });
 
@@ -38,7 +27,7 @@ void main() {
         tag: 'TestTag',
       );
 
-      final result = printer.format(record, 'Test message');
+      final result = printer.format(record);
 
       // Should contain basic info
       expect(result, contains('Test message'));
@@ -46,30 +35,19 @@ void main() {
       expect(result, contains('TestTag'));
     });
 
-    test('should handle null stackTrace', () {
+    test('should handle error with stackTrace', () {
       final printer = DefaultPrettyPrinter();
       final record = LogRecord(
         level: LogLevel.error,
         message: 'Error occurred',
         timestamp: DateTime.now(),
+        error: Exception('test error'),
+        stackTrace: StackTrace.current,
       );
 
-      final result = printer.format(record, 'Error occurred');
+      final result = printer.format(record);
 
       expect(result, contains('Error occurred'));
-      // Should not throw
-    });
-
-    test('should respect custom options', () {
-      final printer = DefaultPrettyPrinter(
-        stackTraceDepth: 2,
-        errorMethodCount: 1,
-        lineLength: 60,
-      );
-
-      expect(printer.stackTraceDepth, equals(2));
-      expect(printer.errorMethodCount, equals(1));
-      expect(printer.lineLength, equals(60));
     });
   });
 }

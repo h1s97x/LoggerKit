@@ -2,6 +2,7 @@ import 'dart:async';
 import '../models/log_record.dart';
 import '../models/log_level.dart';
 import '../models/log_config.dart';
+import '../models/log_exception.dart';
 import '../formatters/log_formatter.dart';
 import '../writers/log_writer.dart';
 import '../writers/file_writer.dart';

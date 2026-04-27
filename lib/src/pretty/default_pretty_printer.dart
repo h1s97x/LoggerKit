@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import '../models/log_level.dart';
 import '../models/log_record.dart';
 import 'ansi_color.dart';
 import 'pretty_printer.dart';
@@ -17,7 +16,7 @@ class DefaultPrettyPrinter implements PrettyPrinter {
 
   PrettyPrinterConfig _config;
 
-  @override
+  /// Get the configuration.
   PrettyPrinterConfig get config => _config;
 
   @override

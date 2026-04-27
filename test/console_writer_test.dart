@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger_kit/pretty.dart';
-import 'package:logger_kit/pretty.dart' show ConsoleWriter;
+import 'package:logger_kit/logger_kit.dart' show ConsoleWriter;
 import 'package:logger_kit/models/models.dart';
 
 final _testRecord = LogRecord(

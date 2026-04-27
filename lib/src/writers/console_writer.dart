@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import '../models/log_record.dart';
 import '../pretty/pretty_printer.dart';
 import '../pretty/default_pretty_printer.dart';
-import '../pretty/simple_pretty_printer.dart';
 import '../strategy/error_strategy.dart';
 import 'log_writer.dart';
 
@@ -14,7 +11,6 @@ class ConsoleWriter implements LogWriter {
   final PrettyPrinter? prettyPrinter;
   final ErrorStrategy errorStrategy;
   final String _output;
-  final bool _useColor;
 
   /// Create a new ConsoleWriter
   ///
@@ -30,21 +26,7 @@ class ConsoleWriter implements LogWriter {
     String output = 'stdout',
     bool? useColor,
   })  : prettyPrinter = prettyPrinter ?? DefaultPrettyPrinter(),
-        _output = output,
-        _useColor = useColor ?? _detectColorSupport();
-
-  static bool _detectColorSupport() {
-    // Check if terminal supports colors
-    final envVars = Platform.environment;
-    if (envVars['TERM'] == 'dumb') return false;
-    if (envVars.containsKey('NO_COLOR')) return false;
-    if (Platform.isWindows) {
-      // Windows Console API detection
-      return Platform.environment['WT_SESSION'] != null ||
-          Platform.environment['TERMINAL_SERIES'] != null;
-    }
-    return stdout.hasTerminal;
-  }
+        _output = output;
 
   @override
   Future<void> write(LogRecord record, String formatted) async {

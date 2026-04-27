@@ -6,7 +6,7 @@
 /// - [SimplePrettyPrinter] - Simple formatter without colors
 /// - [AnsiColor] - ANSI color codes for terminal output
 /// - [PrettyPrinterConfig] - Configuration options
-library;
+library logger_kit.pretty;
 
 export 'ansi_color.dart';
 export 'default_pretty_printer.dart';
